@@ -1,0 +1,22 @@
+<div class="auth-card">
+  <h2>Connexion</h2>
+  <p class="muted">Identifie-toi avant d’accéder aux matchs et à l’admin.</p>
+
+  <form (ngSubmit)="login()" class="form">
+    <label>
+      <span>Téléphone ou username</span>
+      <input type="text" [(ngModel)]="identifier" name="identifier" required />
+    </label>
+    <label>
+      <span>Mot de passe</span>
+      <input type="password" [(ngModel)]="password" name="password" required />
+    </label>
+    <button type="submit" class="btn" [disabled]="loading">
+      {{ loading ? 'Connexion...' : 'Se connecter' }}
+    </button>
+  </form>
+
+  <p class="muted">Pas encore de compte ? <a routerLink="/admin/signup">Créer un compte joueur</a></p>
+
+  <p *ngIf="statusMessage" class="status">{{ statusMessage }}</p>
+</div>

@@ -1,0 +1,42 @@
+<div class="page">
+  <header>
+    <p class="eyebrow">Inscriptions</p>
+    <h2>Formulaire clean, style Nike.</h2>
+    <p class="muted">
+      Ajoute un joueur ou une équipe en quelques secondes. Les admins valideront et placeront les équipes dans le
+      bracket.
+    </p>
+  </header>
+
+  <form class="form" (ngSubmit)="registerPlayer()">
+    <label>
+      <span>Nom du joueur</span>
+      <input type="text" [(ngModel)]="playerName" name="playerName" required />
+    </label>
+    <label>
+      <span>Nom de l’équipe</span>
+      <input type="text" [(ngModel)]="teamName" name="teamName" placeholder="Optionnel" />
+    </label>
+    <label>
+      <span>Contact (téléphone ou email)</span>
+      <input type="text" [(ngModel)]="contact" name="contact" required />
+    </label>
+    <button type="submit" class="btn">Valider l’inscription</button>
+  </form>
+
+  <section *ngIf="registrations.length" class="list">
+    <div class="list__head">
+      <h3>Inscriptions en attente</h3>
+      <span class="tag">{{ registrations.length }} en file</span>
+    </div>
+    <ul>
+      <li *ngFor="let entry of registrations">
+        <div>
+          <strong>{{ entry.playerName }}</strong> — {{ entry.teamName }}
+          <p class="muted">{{ entry.contact }}</p>
+        </div>
+        <span class="time">{{ entry.registeredAt | date: 'shortTime' }}</span>
+      </li>
+    </ul>
+  </section>
+</div>

@@ -1,0 +1,103 @@
+.page header {
+  margin-bottom: 1rem;
+}
+
+.muted {
+  color: var(--muted);
+}
+
+.form {
+  display: grid;
+  gap: 1rem;
+  background: #fff;
+  border: 1px solid #e5e5e5;
+  border-radius: var(--radius);
+  padding: 1.25rem;
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.06);
+  max-width: 640px;
+}
+
+label {
+  display: grid;
+  gap: 0.35rem;
+  font-weight: 700;
+}
+
+input,
+textarea,
+select {
+  padding: 0.7rem 0.85rem;
+  border-radius: 12px;
+  border: 1px solid #dcdcdc;
+  font-size: 1rem;
+  background: #fafafa;
+}
+
+button.btn {
+  align-self: start;
+}
+
+.status {
+  margin: 0;
+  font-weight: 700;
+}
+
+.error {
+  color: #b91c1c;
+  font-weight: 700;
+}
+
+.matches {
+  margin-top: 1.5rem;
+}
+
+.matches__header {
+  display: grid;
+  gap: 0.75rem;
+  align-items: start;
+}
+
+.add {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 0.5rem;
+}
+
+.add input {
+  width: 100%;
+}
+
+.table {
+  border: 1px solid #e5e5e5;
+  border-radius: var(--radius);
+  overflow: hidden;
+  background: #fff;
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.06);
+  margin-top: 0.75rem;
+}
+
+.table__head,
+.table__row {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 0.75rem;
+  padding: 0.9rem 1rem;
+}
+
+.table__head {
+  background: #f8f8f8;
+  font-weight: 800;
+}
+
+.table__row {
+  border-top: 1px solid #e5e5e5;
+}
+
+.link.danger {
+  color: #b91c1c;
+  border: none;
+  background: transparent;
+  text-align: left;
+  cursor: pointer;
+  font-weight: 700;
+}

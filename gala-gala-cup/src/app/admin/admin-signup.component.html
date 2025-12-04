@@ -1,0 +1,28 @@
+<div class="auth-card">
+  <h2>Créer un compte</h2>
+  <p class="muted">Inscription joueur. Aucun compte admin n’est créé depuis ici.</p>
+
+  <form (ngSubmit)="signup()" class="form">
+    <label>
+      <span>Email</span>
+      <input type="email" [(ngModel)]="email" name="email" required />
+    </label>
+    <label>
+      <span>Mot de passe</span>
+      <input type="password" [(ngModel)]="password" name="password" required />
+    </label>
+    <label>
+      <span>Username</span>
+      <input type="text" [(ngModel)]="username" name="username" required />
+    </label>
+    <label>
+      <span>Téléphone (optionnel)</span>
+      <input type="text" [(ngModel)]="phone" name="phone" />
+    </label>
+    <button type="submit" class="btn" [disabled]="loading">
+      {{ loading ? 'Création...' : 'Créer un compte' }}
+    </button>
+  </form>
+
+  <p *ngIf="statusMessage" class="status">{{ statusMessage }}</p>
+</div>

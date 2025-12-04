@@ -1,0 +1,41 @@
+<div class="app-shell">
+  <header class="topbar">
+    <div class="brand">
+      <div class="logo-dot"></div>
+      <div>
+        <a routerLink="/" class="brand__name" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">
+          GalaGala CUP
+        </a>
+        <p class="brand__tagline">Tournoi de foot entre amis · notifications des matchs</p>
+      </div>
+    </div>
+    <ng-container *ngIf="isLoggedIn">
+      <nav class="nav">
+        <a routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">Accueil</a>
+        <a routerLink="/matches" routerLinkActive="active">Matchs</a>
+        <a routerLink="/listes" routerLinkActive="active">Listes</a>
+        <a routerLink="/historique" routerLinkActive="active">Historique</a>
+      </nav>
+      <div class="topbar__actions">
+        <a *ngIf="isAdmin" routerLink="/admin" routerLinkActive="active" class="nav-link">Gérer</a>
+        <button type="button" class="btn outline" (click)="logout()">Déconnexion</button>
+      </div>
+    </ng-container>
+  </header>
+
+  <main class="content">
+    <router-outlet></router-outlet>
+  </main>
+
+  <footer class="footer">
+    <div>
+      <strong>GalaGala CUP</strong>
+      <p class="muted">Organisation, inscriptions et notifications des matchs.</p>
+    </div>
+    <div class="footer__links">
+      <a routerLink="/matches">Matchs</a>
+      <a routerLink="/listes">Listes</a>
+      <a routerLink="/historique">Historique</a>
+    </div>
+  </footer>
+</div>

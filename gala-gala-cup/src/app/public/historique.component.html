@@ -1,0 +1,16 @@
+<div class="page">
+  <header>
+    <p class="eyebrow">Historique</p>
+    <h2>Palmarès en noir et blanc.</h2>
+    <p class="muted">Les vainqueurs des précédentes GalaGala CUP.</p>
+  </header>
+
+  <div class="grid">
+    <article *ngFor="let winner of winners" class="card">
+      <p class="year">{{ winner.year }}</p>
+      <h3>{{ winner.team }}</h3>
+      <p class="muted">Score de la finale : {{ winner.score }}</p>
+      <p class="mvp">MVP : {{ winner.mvp }}</p>
+    </article>
+  </div>
+</div>

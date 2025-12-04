@@ -1,0 +1,29 @@
+<div class="page">
+  <header>
+    <div>
+      <h2>Tableau de bord</h2>
+      <p class="muted">Vue rapide sur l’activité de la GalaGala CUP.</p>
+    </div>
+    <div class="actions">
+      <a routerLink="/admin/tournois/nouveau" class="btn">Nouveau tournoi</a>
+      <a routerLink="/matches" class="btn outline">Voir les matchs publics</a>
+    </div>
+  </header>
+
+  <section class="stats">
+    <article *ngFor="let stat of stats" class="card">
+      <p class="label">{{ stat.label }}</p>
+      <h3>{{ stat.value }}</h3>
+    </article>
+  </section>
+
+  <section class="alerts">
+    <div class="alerts__head">
+      <h3>Actions à prévoir</h3>
+      <span class="tag">{{ alerts.length }}</span>
+    </div>
+    <ul>
+      <li *ngFor="let alert of alerts">{{ alert }}</li>
+    </ul>
+  </section>
+</div>

@@ -1,0 +1,43 @@
+.page header {
+  margin-bottom: 1rem;
+}
+
+.eyebrow {
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  font-size: 0.85rem;
+  color: var(--muted);
+  margin: 0;
+}
+
+.muted {
+  color: var(--muted);
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 1rem;
+}
+
+.card {
+  background: #0f0f0f;
+  color: #fff;
+  border-radius: var(--radius);
+  padding: 1.1rem;
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.18);
+  display: grid;
+  gap: 0.4rem;
+}
+
+.year {
+  font-weight: 800;
+  color: #b5b5b5;
+  margin: 0;
+  letter-spacing: 0.05em;
+}
+
+.mvp {
+  font-weight: 700;
+  margin: 0.2rem 0 0;
+}

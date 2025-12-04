@@ -1,0 +1,31 @@
+<div class="page">
+  <header>
+    <h2>Tournois</h2>
+    <div class="actions">
+      <a routerLink="/admin/tournois/nouveau" class="btn">Créer un tournoi</a>
+    </div>
+  </header>
+
+  <div *ngIf="loading" class="muted">Chargement...</div>
+  <div *ngIf="error" class="error">{{ error }}</div>
+  <div *ngIf="!loading && !error && !tournaments.length" class="muted">Aucun tournoi pour l’instant.</div>
+
+  <div class="table">
+    <div class="table__head">
+      <span>Nom</span>
+      <span>Date</span>
+      <span>Matchs</span>
+      <span>Format</span>
+      <span>Action</span>
+    </div>
+    <div class="table__row" *ngFor="let tournament of tournaments">
+      <span>{{ tournament.name }}</span>
+      <span>{{ tournament.date | date: 'dd/MM/yyyy' }}</span>
+      <span class="badge">
+        {{ tournament.matches?.length || 0 }}
+      </span>
+      <span>{{ tournament.format || '—' }}</span>
+      <a [routerLink]="['/admin/tournois', tournament.id]" class="link">Éditer</a>
+    </div>
+  </div>
+</div>

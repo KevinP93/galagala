@@ -1,0 +1,50 @@
+<section class="hero">
+  <div class="hero__text">
+    <p class="kicker">Just play it</p>
+    <h1>GalaGala CUP, l’app qui suit le tempo des matchs façon Nike.</h1>
+    <p class="sub">
+      Reçois les alertes avant le coup d’envoi, inscris tes joueurs en deux gestes et garde la trace des équipes
+      championnes.
+    </p>
+    <div class="cta">
+      <a routerLink="/matches" class="btn">Suivre les matchs</a>
+      <a routerLink="/listes" class="btn outline">Listes des joueurs</a>
+    </div>
+    <div class="chips">
+      <span class="chip">Prochain tournoi</span>
+      <span class="chip ghost">{{ nextTournament.date }}</span>
+      <span class="chip ghost">{{ nextTournament.location }}</span>
+    </div>
+  </div>
+  <div class="hero__card">
+    <p class="label">Prochain event</p>
+    <h3>{{ nextTournament.name }}</h3>
+    <p class="muted">{{ nextTournament.location }}</p>
+    <p class="muted">Le {{ nextTournament.date }}</p>
+    <div class="stat">
+      <div>
+        <p class="muted">Équipes inscrites</p>
+        <strong>{{ nextTournament.registeredTeams }}/{{ nextTournament.capacity }}</strong>
+      </div>
+      <div class="meter">
+        <span [style.width.%]="progress"></span>
+      </div>
+    </div>
+    <a routerLink="/inscription" class="btn ghost full">Je m’inscris</a>
+  </div>
+</section>
+
+<section class="highlights">
+  <div class="highlights__head">
+    <h2>Une interface simple, noire sur blanc, façon Nike App.</h2>
+    <p class="muted">
+      Les essentiels : inscription rapide, notifications en temps réel, et palmarès des équipes qui gagnent.
+    </p>
+  </div>
+  <div class="grid">
+    <article *ngFor="let item of highlights" class="card">
+      <h3>{{ item.title }}</h3>
+      <p>{{ item.description }}</p>
+    </article>
+  </div>
+</section>

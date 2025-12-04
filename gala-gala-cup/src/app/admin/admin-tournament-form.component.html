@@ -1,0 +1,83 @@
+<div class="page">
+  <header>
+    <h2>Créer / éditer un tournoi</h2>
+    <p class="muted">Renseigne les infos de base puis ajoute les matchs.</p>
+  </header>
+
+  <div class="muted" *ngIf="loading">Chargement...</div>
+  <p class="error" *ngIf="error">{{ error }}</p>
+
+  <form class="form" (ngSubmit)="saveTournament()">
+    <label>
+      <span>Nom du tournoi</span>
+      <input type="text" [(ngModel)]="tournament.name" name="title" required />
+    </label>
+    <label>
+      <span>Date</span>
+      <input type="date" [(ngModel)]="tournament.date" name="date" required />
+    </label>
+    <label>
+      <span>Lieu</span>
+      <input type="text" [(ngModel)]="tournament.location" name="location" />
+    </label>
+    <label>
+      <span>Format</span>
+      <select [(ngModel)]="tournament.format" name="format">
+        <option value="table">Équipes fixes (table)</option>
+        <option value="poule">Poules + finales</option>
+        <option value="elim">Élimination directe</option>
+      </select>
+    </label>
+    <label>
+      <span>Vainqueur (optionnel)</span>
+      <input type="text" [(ngModel)]="tournament.winner" name="winner" />
+    </label>
+    <button type="submit" class="btn outline" [disabled]="loading">Enregistrer</button>
+    <p class="status" *ngIf="savedMessage">{{ savedMessage }}</p>
+  </form>
+
+  <section class="matches">
+    <div class="matches__header">
+      <h3>Matchs</h3>
+      <div class="add">
+        <input
+          type="text"
+          placeholder="Équipe A"
+          [(ngModel)]="newMatch.teamA"
+          name="opponentA"
+        />
+        <input
+          type="text"
+          placeholder="Équipe B"
+          [(ngModel)]="newMatch.teamB"
+          name="opponentB"
+        />
+        <input
+          type="datetime-local"
+          placeholder="Date et heure"
+          [(ngModel)]="newMatch.startTime"
+          name="kickoff"
+        />
+        <button type="button" class="btn" (click)="addMatch()">Ajouter</button>
+      </div>
+    </div>
+
+    <div class="table" *ngIf="tournament.matches.length; else emptyState">
+      <div class="table__head">
+        <span>Équipe A</span>
+        <span>Équipe B</span>
+        <span>Horaire</span>
+        <span></span>
+      </div>
+      <div class="table__row" *ngFor="let match of tournament.matches">
+        <span>{{ match.teamA }}</span>
+        <span>{{ match.teamB }}</span>
+        <span>{{ match.startTime | date: 'dd/MM/yyyy HH:mm' }}</span>
+        <button type="button" class="link danger" (click)="removeMatch(match.id)">Supprimer</button>
+      </div>
+    </div>
+    <ng-template #emptyState>
+      <p class="muted">Aucun match pour l’instant.</p>
+    </ng-template>
+  </section>
+</div>

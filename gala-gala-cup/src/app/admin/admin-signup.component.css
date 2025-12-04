@@ -1,0 +1,44 @@
+.auth-card {
+  max-width: 440px;
+  margin: 0 auto;
+  background: #fff;
+  border: 1px solid #e5e5e5;
+  border-radius: var(--radius);
+  padding: 1.5rem;
+  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.08);
+}
+
+.muted {
+  color: var(--muted);
+  margin-top: 0.25rem;
+}
+
+.form {
+  display: grid;
+  gap: 1rem;
+  margin: 1rem 0;
+}
+
+label {
+  display: grid;
+  gap: 0.35rem;
+  font-weight: 700;
+}
+
+input {
+  padding: 0.7rem 0.85rem;
+  border-radius: 12px;
+  border: 1px solid #dcdcdc;
+  font-size: 1rem;
+  background: #fafafa;
+}
+
+button.btn {
+  width: fit-content;
+}
+
+.status {
+  font-weight: 700;
+  color: #0f0f0f;
+  margin: 0.25rem 0 0;
+}

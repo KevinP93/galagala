@@ -1,0 +1,40 @@
+<div class="page">
+  <header>
+    <p class="eyebrow">Listes</p>
+    <h2>Joueurs inscrits</h2>
+    <p class="muted">
+      Visualise les équipes déjà engagées. Ajoute la tienne en un clic pour le prochain tournoi.
+    </p>
+  </header>
+
+  <div class="form">
+    <button class="btn" (click)="register()" [disabled]="submitting">
+      {{ submitting ? 'Inscription...' : 'S’inscrire' }}
+    </button>
+    <p class="muted">L’inscription utilise ton profil connecté (username ou équipe associée).</p>
+    <p class="error" *ngIf="error">{{ error }}</p>
+  </div>
+
+  <section class="list">
+    <div class="list__head">
+      <h3>Inscriptions récentes</h3>
+      <span class="tag">{{ registrations.length }}</span>
+    </div>
+    <div *ngIf="loading" class="muted">Chargement...</div>
+    <div *ngIf="!loading && !registrations.length" class="empty">Aucune inscription pour l’instant.</div>
+    <ul *ngIf="!loading && registrations.length">
+      <li *ngFor="let entry of registrations">
+        <div>
+          <strong>{{ entry.teamName || 'Équipe inconnue' }}</strong>
+          <p class="muted">
+            {{ entry.username || 'Profil inconnu' }}
+            <span *ngIf="entry.matchStartTime">
+              · {{ entry.matchStartTime | date: 'dd MMM yyyy · HH:mm' }}
+            </span>
+          </p>
+        </div>
+        <span class="time">{{ entry.createdAt | date: 'short' }}</span>
+      </li>
+    </ul>
+  </section>
+</div>

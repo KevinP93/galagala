@@ -1,0 +1,104 @@
+.page header {
+  margin-bottom: 1.5rem;
+}
+
+.page h2 {
+  margin: 0.25rem 0 0.5rem;
+  font-size: 1.9rem;
+  letter-spacing: -0.01em;
+}
+
+.muted {
+  color: var(--muted);
+}
+
+.section {
+  margin-top: 1.5rem;
+}
+
+.section__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.match-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 1rem;
+}
+
+.card {
+  background: #fff;
+  border: 1px solid #e5e5e5;
+  border-radius: var(--radius);
+  padding: 1rem;
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.06);
+  display: grid;
+  gap: 0.5rem;
+}
+
+.teams {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  font-weight: 800;
+}
+
+.meta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
+.label {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.25rem 0.7rem;
+  border-radius: 999px;
+  background: #0f0f0f;
+  color: #fff;
+  font-weight: 700;
+  font-size: 0.9rem;
+}
+
+.label.dark {
+  background: #f2f2f2;
+  color: #0f0f0f;
+}
+
+.tag {
+  padding: 0.35rem 0.75rem;
+  border-radius: 999px;
+  background: #0f0f0f;
+  color: #fff;
+  font-weight: 700;
+  letter-spacing: 0.01em;
+}
+
+.tag.ghost {
+  background: #f2f2f2;
+  color: #0f0f0f;
+}
+
+.empty,
+.error {
+  margin: 0.5rem 0;
+  font-weight: 700;
+}
+
+.error {
+  color: #b91c1c;
+}
+
+.eyebrow {
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  font-size: 0.85rem;
+  color: var(--muted);
+  margin: 0;
+}

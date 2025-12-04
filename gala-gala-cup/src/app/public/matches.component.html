@@ -1,0 +1,53 @@
+<div class="page">
+  <header>
+    <p class="eyebrow">Matchs</p>
+    <h2>Planning épuré, noir sur blanc.</h2>
+    <p class="muted">
+      Les matchs à venir et les scores récents dans une grille inspirée de l’app Nike : lisible, directe, sans bruit.
+    </p>
+  </header>
+
+  <section class="section">
+    <div class="section__head">
+      <h3>À venir</h3>
+      <span class="tag">Alertes push activées</span>
+    </div>
+    <div *ngIf="loading" class="muted">Chargement...</div>
+    <div *ngIf="error" class="error">{{ error }}</div>
+    <div *ngIf="!loading && !error && !upcomingMatches.length" class="empty">Aucun match programmé.</div>
+    <div class="match-grid" *ngIf="!loading && !error && upcomingMatches.length">
+      <article *ngFor="let match of upcomingMatches" class="card">
+        <div class="teams">
+          <span>{{ match.teamA }}</span>
+          <strong>vs</strong>
+          <span>{{ match.teamB }}</span>
+        </div>
+        <div class="meta">
+          <span class="label">À venir</span>
+          <span class="muted">{{ match.startTime | date: 'dd MMM yyyy · HH:mm' }}</span>
+        </div>
+      </article>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="section__head">
+      <h3>Résultats</h3>
+      <span class="tag ghost">Dernière édition</span>
+    </div>
+    <div *ngIf="!loading && !error && !pastMatches.length" class="empty">Aucun match terminé.</div>
+    <div class="match-grid" *ngIf="!loading && !error && pastMatches.length">
+      <article *ngFor="let match of pastMatches" class="card">
+        <div class="teams">
+          <span>{{ match.teamA }}</span>
+          <strong>{{ match.scoreA ?? '-' }} - {{ match.scoreB ?? '-' }}</strong>
+          <span>{{ match.teamB }}</span>
+        </div>
+        <div class="meta">
+          <span class="label dark">Terminé</span>
+          <span class="muted">{{ match.startTime | date: 'dd MMM yyyy · HH:mm' }}</span>
+        </div>
+      </article>
+    </div>
+  </section>
+</div>
