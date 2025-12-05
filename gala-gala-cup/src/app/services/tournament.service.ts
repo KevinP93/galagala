@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
-import { createClient, SupabaseClient } from '@supabase/supabase-js';
-import { environment } from '../../environments/environment';
+import { SupabaseClient } from '@supabase/supabase-js';
 import { Match, Tournament } from '../models/tournament.model';
+import { supabaseClient } from '../supabase.client';
 
 @Injectable({
   providedIn: 'root',
@@ -10,7 +10,7 @@ export class TournamentService {
   private supabase: SupabaseClient;
 
   constructor() {
-    this.supabase = createClient(environment.supabaseUrl, environment.supabaseAnonKey);
+    this.supabase = supabaseClient;
   }
 
   async getTournaments(): Promise<Tournament[]> {
@@ -23,13 +23,14 @@ export class TournamentService {
         date,
         location,
         winner_team,
-        format,
         matches:matches (
           id,
           tournament_id,
           start_time,
           team_a,
           team_b,
+          team_a_id,
+          team_b_id,
           score_a,
           score_b
         )
@@ -55,13 +56,14 @@ export class TournamentService {
         date,
         location,
         winner_team,
-        format,
         matches:matches (
           id,
           tournament_id,
           start_time,
           team_a,
           team_b,
+          team_a_id,
+          team_b_id,
           score_a,
           score_b
         )
@@ -81,7 +83,26 @@ export class TournamentService {
   async getNextTournament(): Promise<Tournament | null> {
     const { data, error } = await this.supabase
       .from('tournaments')
-      .select('id, name, date, location, winner_team, format')
+      .select(
+        `
+        id,
+        name,
+        date,
+        location,
+        winner_team,
+        matches:matches (
+          id,
+          tournament_id,
+          start_time,
+          team_a,
+          team_b,
+          team_a_id,
+          team_b_id,
+          score_a,
+          score_b
+        )
+      `
+      )
       .gte('date', new Date().toISOString())
       .order('date', { ascending: true })
       .limit(1);
@@ -99,16 +120,11 @@ export class TournamentService {
       date: row.date,
       location: row.location,
       winner: row.winner_team ?? null,
-      matches: [],
-      format: row.format ?? undefined,
+      matches: Array.isArray(row.matches) ? row.matches.map((m: any) => this.fromDbMatch(m)) : [],
     };
   }
 
   async upsertTournament(tournament: Tournament): Promise<void> {
-    if (!tournament.matches.length) {
-      throw new Error('Merci d’ajouter au moins un match avant de sauvegarder.');
-    }
-    // 1) Upsert tournoi
     const tournamentPayload = this.toDbTournament(tournament);
     const tournamentId = tournament.id || tournamentPayload.id;
     const { error: upsertTournamentError } = await this.supabase
@@ -120,8 +136,7 @@ export class TournamentService {
       throw new Error("Impossible d'enregistrer le tournoi");
     }
 
-    // 2) Upsert matches
-    const matchesPayload = tournament.matches.map((match) =>
+    const matchesPayload = (tournament.matches || []).map((match) =>
       this.toDbMatch({ ...match, tournamentId: match.tournamentId || tournamentId })
     );
     const idsToKeep = matchesPayload.map((m) => m.id);
@@ -137,7 +152,6 @@ export class TournamentService {
       }
     }
 
-    // 3) Supprimer les matchs absents (remise à zéro)
     if (idsToKeep.length) {
       const { error: deleteError } = await this.supabase
         .from('matches')
@@ -147,11 +161,6 @@ export class TournamentService {
 
       if (deleteError) {
         console.error('Erreur suppression matches obsolètes:', deleteError);
-      }
-    } else {
-      const { error: deleteAllError } = await this.supabase.from('matches').delete().eq('tournament_id', tournamentId);
-      if (deleteAllError) {
-        console.error('Erreur suppression matches (aucun à conserver):', deleteAllError);
       }
     }
   }
@@ -176,7 +185,6 @@ export class TournamentService {
       date: row.date,
       location: row.location,
       winner: row.winner_team ?? null,
-      format: row.format ?? undefined,
       matches: Array.isArray(row.matches) ? row.matches.map((m: any) => this.fromDbMatch(m)) : [],
     };
   }
@@ -188,6 +196,8 @@ export class TournamentService {
       startTime: row.start_time,
       teamA: row.team_a,
       teamB: row.team_b,
+      teamAId: row.team_a_id ?? null,
+      teamBId: row.team_b_id ?? null,
       scoreA: row.score_a ?? null,
       scoreB: row.score_b ?? null,
     };
@@ -200,7 +210,6 @@ export class TournamentService {
       date: tournament.date,
       location: tournament.location,
       winner_team: tournament.winner ?? null,
-      format: tournament.format ?? null,
     };
   }
 
@@ -211,12 +220,21 @@ export class TournamentService {
       start_time: match.startTime,
       team_a: match.teamA,
       team_b: match.teamB,
+      team_a_id: match.teamAId ?? null,
+      team_b_id: match.teamBId ?? null,
       score_a: match.scoreA ?? null,
       score_b: match.scoreB ?? null,
     };
   }
 
   private generateId(): string {
-    return (crypto as any).randomUUID ? (crypto as any).randomUUID() : Math.random().toString(36).slice(2);
+    if (typeof crypto !== 'undefined' && typeof (crypto as any).randomUUID === 'function') {
+      return (crypto as any).randomUUID();
+    }
+    return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, (c) => {
+      const r = (Math.random() * 16) | 0;
+      const v = c === 'x' ? r : (r & 0x3) | 0x8;
+      return v.toString(16);
+    });
   }
 }

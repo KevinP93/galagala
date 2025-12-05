@@ -1,0 +1,125 @@
+.muted {
+  color: var(--muted);
+}
+
+.error {
+  color: #b91c1c;
+  font-weight: 700;
+}
+
+.actions {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  margin: 0.5rem 0;
+}
+
+.controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  align-items: center;
+  margin: 0.75rem 0;
+}
+
+.control-card {
+  background: #fff;
+  border: 1px solid #e5e5e5;
+  border-radius: 12px;
+  padding: 0.75rem;
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.05);
+  display: grid;
+  gap: 0.35rem;
+  min-width: 200px;
+}
+
+.control-card label {
+  font-weight: 700;
+  color: #0f172a;
+}
+
+.control-card input {
+  padding: 0.55rem 0.7rem;
+  border-radius: 8px;
+  border: 1px solid #d6d9e4;
+}
+
+.inline {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.card {
+  background: #fff;
+  border: 1px solid #e5e5e5;
+  border-radius: var(--radius);
+  padding: 1rem;
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.06);
+}
+
+.bench .list,
+.team .list {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.bench-row {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.35rem 0;
+}
+
+select {
+  padding: 0.4rem 0.6rem;
+  border-radius: 8px;
+  border: 1px solid #d6d9e4;
+}
+
+.pill {
+  border: 1px solid #d6d9e4;
+  border-radius: 999px;
+  padding: 0.4rem 0.75rem;
+  background: #f7f7f7;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.teams {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+.team__head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.team-name {
+  width: 100%;
+  padding: 0.5rem 0.7rem;
+  border: 1px solid #d6d9e4;
+  border-radius: 8px;
+  font-weight: 700;
+}
+
+.tag {
+  padding: 0.35rem 0.75rem;
+  border-radius: 999px;
+  background: #0f0f0f;
+  color: #fff;
+  font-weight: 700;
+}
+
+.pill-remove {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  font-weight: 700;
+}

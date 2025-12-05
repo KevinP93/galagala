@@ -3,6 +3,7 @@ import { Component, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Registration } from '../models/tournament.model';
 import { RegistrationService } from '../services/registration.service';
+import { AuthService } from '../auth.service';
 
 @Component({
   selector: 'app-player-list',
@@ -16,8 +17,12 @@ export class PlayerListComponent implements OnInit {
   loading = false;
   submitting = false;
   error = '';
+  isRegistered = false;
+  currentUserId: string | null = null;
 
-  constructor(private registrationService: RegistrationService) {}
+  constructor(private registrationService: RegistrationService, private auth: AuthService) {
+    this.currentUserId = this.auth.getUserId();
+  }
 
   ngOnInit(): void {
     this.loadRegistrations();
@@ -27,7 +32,9 @@ export class PlayerListComponent implements OnInit {
     this.loading = true;
     this.error = '';
     try {
-      this.registrations = await this.registrationService.getRegistrations();
+      const nextTournamentId = await this.registrationService.getNextTournamentId();
+      this.registrations = await this.registrationService.getRegistrations(nextTournamentId ?? undefined);
+      this.isRegistered = !!this.currentUserId && this.registrations.some((r) => r.userId === this.currentUserId);
     } catch (err: unknown) {
       this.error = err instanceof Error ? err.message : 'Impossible de charger les inscriptions';
     } finally {
@@ -41,6 +48,7 @@ export class PlayerListComponent implements OnInit {
     try {
       await this.registrationService.quickRegister();
       await this.loadRegistrations();
+      this.isRegistered = true;
     } catch (err: unknown) {
       this.error = err instanceof Error ? err.message : 'Impossible de créer la nouvelle inscription';
     } finally {

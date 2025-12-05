@@ -1,32 +1,37 @@
 import { Injectable } from '@angular/core';
-import { createClient, SupabaseClient } from '@supabase/supabase-js';
-import { environment } from '../../environments/environment';
+import { SupabaseClient } from '@supabase/supabase-js';
 import { Registration } from '../models/tournament.model';
 import { AuthService } from '../auth.service';
+import { supabaseClient } from '../supabase.client';
 
 @Injectable({ providedIn: 'root' })
 export class RegistrationService {
   private supabase: SupabaseClient;
 
   constructor(private auth: AuthService) {
-    this.supabase = createClient(environment.supabaseUrl, environment.supabaseAnonKey);
+    this.supabase = supabaseClient;
   }
 
-  async getRegistrations(): Promise<Registration[]> {
-    const { data, error } = await this.supabase
+  async getRegistrations(tournamentId?: string | null): Promise<Registration[]> {
+    let query = this.supabase
       .from('registrations')
       .select(
         `
         id,
-        match_id,
+        tournament_id,
         user_id,
-        team_name,
         created_at,
         profiles:profiles ( username ),
-        matches:matches ( start_time, team_a, team_b, tournament_id )
+        tournaments:tournaments ( name, date )
       `
       )
       .order('created_at', { ascending: false });
+
+    if (tournamentId) {
+      query = query.eq('tournament_id', tournamentId);
+    }
+
+    const { data, error } = await query;
 
     if (error) {
       console.error('Erreur récupération inscriptions:', error);
@@ -35,14 +40,12 @@ export class RegistrationService {
 
     return (data ?? []).map((row: any) => ({
       id: row.id,
-      matchId: row.match_id ?? null,
+      tournamentId: row.tournament_id ?? null,
       userId: row.user_id ?? null,
-      teamName: row.team_name ?? null,
       createdAt: row.created_at,
       username: row.profiles?.username ?? null,
-      matchStartTime: row.matches?.start_time ?? null,
-      teamA: row.matches?.team_a ?? null,
-      teamB: row.matches?.team_b ?? null,
+      tournamentName: row.tournaments?.name ?? null,
+      tournamentDate: row.tournaments?.date ?? null,
     }));
   }
 
@@ -52,13 +55,11 @@ export class RegistrationService {
       throw new Error("Utilisateur non authentifié");
     }
 
-    const teamName = await this.resolveTeamName(userId);
-    const matchId = await this.findNextMatchId();
+    const tournamentId = await this.findNextTournamentId();
 
     const { error } = await this.supabase.from('registrations').insert({
-      team_name: teamName,
       user_id: userId,
-      match_id: matchId,
+      tournament_id: tournamentId,
     });
 
     if (error) {
@@ -67,33 +68,34 @@ export class RegistrationService {
     }
   }
 
-  private async resolveTeamName(userId: string): Promise<string | null> {
+  private async findNextTournamentId(): Promise<string | null> {
     const { data, error } = await this.supabase
-      .from('profiles')
-      .select('username')
-      .eq('id', userId)
-      .single();
-
-    if (error) {
-      console.warn('Impossible de récupérer le username, utilisation d’un libellé par défaut');
-      return 'Équipe sans nom';
-    }
-    return data?.username ?? 'Équipe sans nom';
-  }
-
-  private async findNextMatchId(): Promise<string | null> {
-    const { data, error } = await this.supabase
-      .from('matches')
-      .select('id, start_time')
-      .gte('start_time', new Date().toISOString())
-      .order('start_time', { ascending: true })
+      .from('tournaments')
+      .select('id, date')
+      .gte('date', new Date().toISOString())
+      .order('date', { ascending: true })
       .limit(1);
 
     if (error) {
-      console.error('Erreur récupération prochain match:', error);
+      console.error('Erreur récupération prochain tournoi:', error);
       return null;
     }
-
     return data?.[0]?.id ?? null;
+  }
+
+  async getNextTournamentId(): Promise<string | null> {
+    return this.findNextTournamentId();
+  }
+
+  async countNotificationTokens(): Promise<number> {
+    const { count, error } = await this.supabase
+      .from('notification_tokens')
+      .select('id', { count: 'exact', head: true });
+
+    if (error) {
+      console.error('Erreur récupération tokens:', error);
+      return 0;
+    }
+    return count ?? 0;
   }
 }

@@ -1,0 +1,69 @@
+<div class="page">
+  <header>
+    <h2>Prochain tournoi</h2>
+    <p class="muted">Visualise les inscrits et prépare les équipes et matchs.</p>
+    <div class="actions" *ngIf="tournament">
+      <button type="button" class="btn" (click)="openEditModal()">Éditer le tournoi</button>
+         <a routerLink="/admin/tournois/nouveau" class="btn outline">Créer un autre tournoi</a>
+      <button type="button" class="btn ghost" (click)="toggleWinnerForm()">Déclarer le vainqueur</button>
+   
+    </div>
+  </header>
+
+  <div *ngIf="loading" class="muted">Chargement...</div>
+  <div *ngIf="error" class="error">{{ error }}</div>
+  <div *ngIf="!loading && !error && !tournament" class="muted">Aucun tournoi à venir.</div>
+
+  <section *ngIf="tournament" class="card">
+    <h3>{{ tournament.name }}</h3>
+    <p class="muted">{{ tournament.date | date: 'dd MMM yyyy' }} · {{ tournament.location }}</p>
+  </section>
+
+  <section class="card">
+    <div class="list__head">
+      <h3>Inscriptions ({{ registrations.length }})</h3>
+    </div>
+    <div *ngIf="!registrations.length" class="muted">Aucun joueur inscrit pour l’instant.</div>
+    <ul *ngIf="registrations.length">
+      <li *ngFor="let entry of registrations">
+        <strong>{{ entry.username || 'Profil inconnu' }}</strong>
+        <span class="time">{{ entry.createdAt | date: 'short' }}</span>
+      </li>
+    </ul>
+  </section>
+
+  <section class="actions">
+    <a routerLink="/admin/prochain/gestion" class="btn">Créer équipes et matchs</a>
+  </section>
+
+  <div class="modal-backdrop" *ngIf="showEditModal">
+    <div class="modal">
+      <h3>Éditer le tournoi</h3>
+      <label>
+        <span>Date</span>
+        <input type="date" [(ngModel)]="editDate" />
+      </label>
+      <div class="modal__actions">
+        <button type="button" class="btn ghost" (click)="closeEditModal()">Annuler</button>
+        <button type="button" class="btn" (click)="saveTournament()">Enregistrer</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal-backdrop" *ngIf="showWinnerForm">
+    <div class="modal">
+      <h3>Déclarer le vainqueur</h3>
+      <label>
+        <span>Équipe gagnante</span>
+        <select [(ngModel)]="selectedWinnerTeamId">
+          <option [ngValue]="null">Sélectionne une équipe</option>
+          <option *ngFor="let team of teams" [ngValue]="team.id">{{ team.name }}</option>
+        </select>
+      </label>
+      <div class="modal__actions">
+        <button type="button" class="btn ghost" (click)="toggleWinnerForm()">Annuler</button>
+        <button type="button" class="btn" (click)="saveWinner()">Enregistrer</button>
+      </div>
+    </div>
+  </div>
+</div>

@@ -9,6 +9,8 @@ import { AdminTournamentFormComponent } from './admin/admin-tournament-form.comp
 import { adminGuard, authGuard } from './auth.guard';
 import { PlayerListComponent } from './public/player-list.component';
 import { AdminSignupComponent } from './admin/admin-signup.component';
+import { AdminNextTournamentComponent } from './admin/admin-next-tournament.component';
+import { AdminTeamMatchComponent } from './admin/admin-team-match.component';
 
 export const routes: Routes = [
   { path: '', component: HomeComponent, pathMatch: 'full', canMatch: [authGuard] },
@@ -17,6 +19,8 @@ export const routes: Routes = [
   { path: 'historique', component: HistoriqueComponent, canMatch: [authGuard] },
   { path: 'admin/login', component: AdminLoginComponent },
   { path: 'admin/signup', component: AdminSignupComponent },
+  { path: 'admin/prochain', component: AdminNextTournamentComponent, canMatch: [adminGuard] },
+  { path: 'admin/prochain/gestion', component: AdminTeamMatchComponent, canMatch: [adminGuard] },
   { path: 'admin', component: AdminDashboardComponent, canMatch: [adminGuard] },
   { path: 'admin/tournois', component: AdminTournamentListComponent, canMatch: [adminGuard] },
   { path: 'admin/tournois/nouveau', component: AdminTournamentFormComponent, canMatch: [adminGuard] },

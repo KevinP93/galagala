@@ -41,7 +41,6 @@ export class AdminTournamentFormComponent implements OnInit {
       location: '',
       winner: null,
       matches: [],
-      format: 'table',
     };
   }
 
@@ -91,10 +90,6 @@ export class AdminTournamentFormComponent implements OnInit {
     this.error = '';
     if (!this.tournament.name.trim() || !this.tournament.date) {
       this.error = 'Nom et date requis.';
-      return;
-    }
-    if (!this.tournament.matches.length) {
-      this.error = 'Ajoute au moins un match.';
       return;
     }
     const id = this.tournament.id || this.draftTournamentId;

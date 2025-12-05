@@ -8,8 +8,8 @@
   </header>
 
   <div class="form">
-    <button class="btn" (click)="register()" [disabled]="submitting">
-      {{ submitting ? 'Inscription...' : 'S’inscrire' }}
+    <button class="btn" (click)="register()" [disabled]="submitting || isRegistered">
+      {{ submitting ? 'Inscription...' : (isRegistered ? 'Déjà inscrit' : 'S’inscrire') }}
     </button>
     <p class="muted">L’inscription utilise ton profil connecté (username ou équipe associée).</p>
     <p class="error" *ngIf="error">{{ error }}</p>
@@ -25,11 +25,11 @@
     <ul *ngIf="!loading && registrations.length">
       <li *ngFor="let entry of registrations">
         <div>
-          <strong>{{ entry.teamName || 'Équipe inconnue' }}</strong>
+          <strong>{{ entry.username || 'Profil inconnu' }}</strong>
           <p class="muted">
-            {{ entry.username || 'Profil inconnu' }}
-            <span *ngIf="entry.matchStartTime">
-              · {{ entry.matchStartTime | date: 'dd MMM yyyy · HH:mm' }}
+            <span *ngIf="entry.tournamentName">
+              · Tournoi : {{ entry.tournamentName }}
+              <ng-container *ngIf="entry.tournamentDate"> ({{ entry.tournamentDate | date: 'dd MMM yyyy' }})</ng-container>
             </span>
           </p>
         </div>

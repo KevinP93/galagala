@@ -1,0 +1,51 @@
+<div class="page">
+  <header>
+    <h2>Équipes et matchs</h2>
+    <div class="controls">
+      <div class="control-card">
+        <label>Nombre d’équipes</label>
+        <input type="number" min="1" [(ngModel)]="teamCount" (ngModelChange)="setTeamCount(teamCount)" />
+      </div>
+      <div class="control-card">
+        <label>Joueurs max / équipe</label>
+        <input type="number" min="1" [(ngModel)]="playersPerTeam" />
+      </div>
+      <button type="button" class="btn ghost" (click)="autoAssign()" [disabled]="!bench.length">Générer aléatoire</button>
+      <button type="button" class="btn" (click)="saveTeams()">Sauvegarder</button>
+    </div>
+  </header>
+
+  <p class="muted" *ngIf="loading">Chargement...</p>
+  <p class="error" *ngIf="error">{{ error }}</p>
+
+  <section class="bench card">
+    <h3>Banc (non assignés) — {{ bench.length }}</h3>
+    <div class="bench-list" *ngIf="bench.length; else benchEmpty">
+      <div class="bench-row" *ngFor="let reg of bench">
+        <div class="pill drag" draggable="true" (dragstart)="handleDragStart($event, reg)">
+          {{ reg.username || 'Profil' }} <span class="muted-sm"></span>
+        </div>
+      </div>
+    </div>
+    <ng-template #benchEmpty>
+      <p class="muted">Plus aucun joueur à assigner.</p>
+    </ng-template>
+  </section>
+
+  <section class="teams">
+    <article class="card team" *ngFor="let team of teams" (dragover)="allowDrop($event)" (drop)="handleDrop($event, team)">
+      <div class="team__head">
+        <input type="text" [(ngModel)]="team.name" class="team-name" />
+        <span class="tag">{{ team.members.length }}/{{ playersPerTeam }}</span>
+      </div>
+      <p class="muted">Dépose un joueur ici ou retire-le avec la croix.</p>
+      <div class="list members">
+        <div class="pill" *ngFor="let reg of team.members">
+          <span>{{ reg.username || 'Profil' }}</span>
+          <button type="button" class="pill-remove" (click)="removeFromTeam(team, reg)">×</button>
+        </div>
+        <p class="muted" *ngIf="!team.members.length">Aucun joueur assigné.</p>
+      </div>
+    </article>
+  </section>
+</div>

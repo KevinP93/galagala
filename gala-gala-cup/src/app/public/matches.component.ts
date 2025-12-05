@@ -1,6 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
-import { Match } from '../models/tournament.model';
+import { Match, Tournament } from '../models/tournament.model';
 import { TournamentService } from '../services/tournament.service';
 
 @Component({
@@ -15,6 +15,7 @@ export class MatchesComponent implements OnInit {
   error = '';
   upcomingMatches: Match[] = [];
   pastMatches: Match[] = [];
+  upcomingTournaments: Tournament[] = [];
 
   constructor(private tournamentService: TournamentService) {}
 
@@ -27,6 +28,9 @@ export class MatchesComponent implements OnInit {
     this.error = '';
     try {
       const tournaments = await this.tournamentService.getTournaments();
+      this.upcomingTournaments = tournaments.filter(
+        (t) => new Date(t.date) >= new Date()
+      );
       const allMatches = tournaments.flatMap((t) => t.matches || []);
       const now = new Date();
       const sorted = allMatches.sort(

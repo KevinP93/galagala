@@ -1,6 +1,8 @@
 import { CommonModule } from '@angular/common';
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { RouterLink } from '@angular/router';
+import { Tournament } from '../models/tournament.model';
+import { TournamentService } from '../services/tournament.service';
 
 @Component({
   selector: 'app-home',
@@ -9,14 +11,10 @@ import { RouterLink } from '@angular/router';
   templateUrl: './home.component.html',
   styleUrls: ['./home.component.css'],
 })
-export class HomeComponent {
-  nextTournament = {
-    name: 'GalaGala CUP #5',
-    date: '14 février 2025',
-    location: 'Stade municipal de Yaoundé',
-    registeredTeams: 12,
-    capacity: 16,
-  };
+export class HomeComponent implements OnInit {
+  nextTournament: Tournament | null = null;
+  loading = false;
+  error = '';
 
   highlights = [
     {
@@ -33,10 +31,25 @@ export class HomeComponent {
     },
   ];
 
-  get progress(): number {
-    return Math.min(
-      100,
-      Math.round((this.nextTournament.registeredTeams / this.nextTournament.capacity) * 100)
-    );
+  constructor(private tournamentService: TournamentService) {}
+
+  ngOnInit(): void {
+    this.loadNextTournament();
+  }
+
+  async loadNextTournament(): Promise<void> {
+    this.loading = true;
+    this.error = '';
+    try {
+      this.nextTournament = await this.tournamentService.getNextTournament();
+    } catch (err: unknown) {
+      this.error = err instanceof Error ? err.message : 'Impossible de charger le prochain tournoi';
+    } finally {
+      this.loading = false;
+    }
+  }
+
+  get hasNextTournament(): boolean {
+    return !!this.nextTournament;
   }
 }

@@ -1,25 +1,27 @@
-<div class="app-shell">
+<div class="app-shell" (touchstart)="onTouchStart($event)" (touchmove)="onTouchMove($event)" (touchend)="onTouchEnd()">
   <header class="topbar">
     <div class="brand">
-      <div class="logo-dot"></div>
+      <img src="galaLogo.png" alt="GalaGala logo" class="brand__logo" />
       <div>
         <a routerLink="/" class="brand__name" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">
           GalaGala CUP
         </a>
-        <p class="brand__tagline">Tournoi de foot entre amis · notifications des matchs</p>
       </div>
     </div>
     <ng-container *ngIf="isLoggedIn">
-      <nav class="nav">
-        <a routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">Accueil</a>
-        <a routerLink="/matches" routerLinkActive="active">Matchs</a>
-        <a routerLink="/listes" routerLinkActive="active">Listes</a>
-        <a routerLink="/historique" routerLinkActive="active">Historique</a>
+      <button class="burger" (click)="toggleMenu()" aria-label="Ouvrir le menu">
+        <span></span>
+        <span></span>
+        <span></span>
+      </button>
+      <nav class="nav" [class.open]="menuOpen">
+        <a routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }" (click)="closeMenu()">Accueil</a>
+        <a routerLink="/matches" routerLinkActive="active" (click)="closeMenu()">Matchs</a>
+        <a routerLink="/listes" routerLinkActive="active" (click)="closeMenu()">Listes</a>
+        <a routerLink="/historique" routerLinkActive="active" (click)="closeMenu()">Historique</a>
+        <a *ngIf="isAdmin" routerLink="/admin" routerLinkActive="active" class="nav-link" (click)="closeMenu()">Gérer</a>
+        <button type="button" class="btn outline" (click)="logout(); closeMenu()">Déconnexion</button>
       </nav>
-      <div class="topbar__actions">
-        <a *ngIf="isAdmin" routerLink="/admin" routerLinkActive="active" class="nav-link">Gérer</a>
-        <button type="button" class="btn outline" (click)="logout()">Déconnexion</button>
-      </div>
     </ng-container>
   </header>
 
@@ -28,14 +30,6 @@
   </main>
 
   <footer class="footer">
-    <div>
-      <strong>GalaGala CUP</strong>
-      <p class="muted">Organisation, inscriptions et notifications des matchs.</p>
-    </div>
-    <div class="footer__links">
-      <a routerLink="/matches">Matchs</a>
-      <a routerLink="/listes">Listes</a>
-      <a routerLink="/historique">Historique</a>
-    </div>
+    <p class="muted">Created by K-WebDesign</p>
   </footer>
 </div>

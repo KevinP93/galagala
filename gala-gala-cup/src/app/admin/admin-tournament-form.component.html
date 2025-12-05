@@ -1,7 +1,6 @@
 <div class="page">
   <header>
     <h2>Créer / éditer un tournoi</h2>
-    <p class="muted">Renseigne les infos de base puis ajoute les matchs.</p>
   </header>
 
   <div class="muted" *ngIf="loading">Chargement...</div>
@@ -21,14 +20,6 @@
       <input type="text" [(ngModel)]="tournament.location" name="location" />
     </label>
     <label>
-      <span>Format</span>
-      <select [(ngModel)]="tournament.format" name="format">
-        <option value="table">Équipes fixes (table)</option>
-        <option value="poule">Poules + finales</option>
-        <option value="elim">Élimination directe</option>
-      </select>
-    </label>
-    <label>
       <span>Vainqueur (optionnel)</span>
       <input type="text" [(ngModel)]="tournament.winner" name="winner" />
     </label>
@@ -37,8 +28,17 @@
   </form>
 
   <section class="matches">
+    <div class="teams-block">
+      <h3>Équipes</h3>
+      <p class="muted">
+        Les joueurs s’inscrivent d’abord au tournoi. Une fois la liste validée, crée tes équipes (libellé ou regroupement)
+        puis passe aux matchs.
+      </p>
+      <p class="muted">Pour l’instant, les équipes se basent sur les inscriptions et les noms d’équipes saisis.</p>
+    </div>
+
     <div class="matches__header">
-      <h3>Matchs</h3>
+      <h3>Matchs (ajoute-les quand les équipes sont prêtes)</h3>
       <div class="add">
         <input
           type="text"
@@ -77,7 +77,7 @@
       </div>
     </div>
     <ng-template #emptyState>
-      <p class="muted">Aucun match pour l’instant.</p>
+      <p class="muted">Aucun match pour l’instant. Ajoute-les après avoir constitué les équipes.</p>
     </ng-template>
   </section>
 </div>
