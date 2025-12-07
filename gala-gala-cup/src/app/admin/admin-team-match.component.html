@@ -22,7 +22,12 @@
     <h3>Banc (non assignés) — {{ bench.length }}</h3>
     <div class="bench-list" *ngIf="bench.length; else benchEmpty">
       <div class="bench-row" *ngFor="let reg of bench">
-        <div class="pill drag" draggable="true" (dragstart)="handleDragStart($event, reg)">
+        <div
+          class="pill drag"
+          draggable="true"
+          (dragstart)="handleDragStart($event, reg)"
+          (touchstart)="onBenchTouchStart($event, reg)"
+        >
           {{ reg.username || 'Profil' }} <span class="muted-sm"></span>
         </div>
       </div>
@@ -33,7 +38,15 @@
   </section>
 
   <section class="teams">
-    <article class="card team" *ngFor="let team of teams" (dragover)="allowDrop($event)" (drop)="handleDrop($event, team)">
+    <article
+      class="card team swipe-card"
+      *ngFor="let team of teams"
+      (dragover)="allowDrop($event)"
+      (drop)="handleDrop($event, team)"
+      (touchstart)="onTeamTouchStart($event, team.id)"
+      (touchmove)="onTeamTouchMove($event, team.id)"
+      (touchend)="onTeamTouchEnd($event, team.id)"
+    >
       <div class="team__head">
         <input type="text" [(ngModel)]="team.name" class="team-name" />
         <span class="tag">{{ team.members.length }}/{{ playersPerTeam }}</span>
@@ -46,6 +59,78 @@
         </div>
         <p class="muted" *ngIf="!team.members.length">Aucun joueur assigné.</p>
       </div>
+      <button
+        *ngIf="deleteTeamVisible[team.id]"
+        type="button"
+        class="delete-tab"
+        (click)="removeTeam(team.id)"
+        aria-label="Supprimer l'équipe"
+      >
+        ×
+      </button>
     </article>
   </section>
+
+  <section class="matches card" *ngIf="teams.length">
+    <div class="match-head">
+      <h3>Matchs</h3>
+      <button class="btn ghost" type="button" (click)="saveMatches()" [disabled]="savingMatches">Sauvegarder les matchs</button>
+    </div>
+    <div class="match-form">
+      <label>
+        Équipe A
+        <select [(ngModel)]="newMatch.teamAId">
+          <option value="">Choisir</option>
+          <option *ngFor="let t of teams" [value]="t.id">{{ t.name }}</option>
+        </select>
+      </label>
+      <label>
+        Équipe B
+        <select [(ngModel)]="newMatch.teamBId">
+          <option value="">Choisir</option>
+          <option *ngFor="let t of teams" [value]="t.id">{{ t.name }}</option>
+        </select>
+      </label>
+      <label>
+        Heure du match
+        <input type="time" [(ngModel)]="newMatch.startTime" />
+      </label>
+      <button class="btn" type="button" (click)="addMatch()">Ajouter le match</button>
+    </div>
+
+    <div *ngIf="!matches.length" class="muted">Aucun match créé pour l'instant.</div>
+    <ul class="match-list" *ngIf="matches.length">
+      <li *ngFor="let m of matches">
+        <div>
+          <strong>{{ m.teamA }} vs {{ m.teamB }}</strong>
+          <span class="muted-sm">{{ m.startTime | date: 'short' }}</span>
+        </div>
+        <button class="pill-remove" type="button" (click)="removeMatch(m.id)">×</button>
+      </li>
+    </ul>
+  </section>
+
+  <div class="modal-backdrop" *ngIf="confirmVisible">
+    <div class="modal">
+      <h3>Confirmer la sauvegarde</h3>
+      <p class="muted">Résumé des équipes :</p>
+      <ul class="summary-list">
+        <li *ngFor="let t of summaryTeams">
+          <strong>{{ t.name }}</strong>
+          <span>{{ t.members.length }}/{{ playersPerTeam }} joueurs</span>
+          <div class="pill-group">
+            <span class="pill tiny" *ngFor="let m of t.members">{{ m.username || 'Profil' }}</span>
+          </div>
+        </li>
+      </ul>
+      <p class="warning" *ngIf="underfilled.length">
+        Attention : équipes incomplètes — {{ underfilled.join(', ') }}.
+      </p>
+      <div class="modal__actions">
+        <button class="btn ghost" type="button" (click)="closeConfirm()">Annuler</button>
+        <button class="btn" type="button" (click)="confirmSave()">Confirmer</button>
+      </div>
+    </div>
+  </div>
+
 </div>

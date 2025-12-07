@@ -1,7 +1,8 @@
 import { CommonModule } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { Registration, Team, Tournament } from '../models/tournament.model';
+import { Router } from '@angular/router';
+import { Match, Registration, Team, Tournament } from '../models/tournament.model';
 import { RegistrationService } from '../services/registration.service';
 import { TeamService } from '../services/team.service';
 import { TournamentService } from '../services/tournament.service';
@@ -24,17 +25,29 @@ export class AdminTeamMatchComponent implements OnInit {
   registrations: Registration[] = [];
   bench: Registration[] = [];
   teams: TeamSlot[] = [];
+  matches: Match[] = [];
+  newMatch: Partial<Match> = { teamAId: '', teamBId: '', startTime: '' };
   teamCount = 2;
   playersPerTeam = 5;
   loading = false;
+  savingMatches = false;
   error = '';
   teamSelect: Record<string, string> = {};
   saveMessage = '';
+  confirmVisible = false;
+  underfilled: string[] = [];
+  summaryTeams: TeamSlot[] = [];
+  deleteTeamVisible: Record<string, boolean> = {};
+  touchStartTeamX: Record<string, number> = {};
+  activeTouchReg: Registration | null = null;
+  readonly isTouch =
+    typeof window !== 'undefined' && ('ontouchstart' in window || (navigator as any).maxTouchPoints > 0);
 
   constructor(
     private registrationService: RegistrationService,
     private tournamentService: TournamentService,
-    private teamService: TeamService
+    private teamService: TeamService,
+    private router: Router
   ) {}
 
   ngOnInit(): void {
@@ -70,6 +83,8 @@ export class AdminTeamMatchComponent implements OnInit {
           this.teamCount = this.teams.length;
         }
       }
+
+      this.matches = this.tournament?.matches ?? [];
 
       if (!this.teams.length) {
         this.generateTeams();
@@ -131,7 +146,15 @@ export class AdminTeamMatchComponent implements OnInit {
   }
 
   private makeId(): string {
-    return Math.random().toString(36).slice(2);
+    if (typeof crypto !== 'undefined' && typeof (crypto as any).randomUUID === 'function') {
+      return (crypto as any).randomUUID();
+    }
+    // fallback simple v4-ish
+    return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, (c) => {
+      const r = (Math.random() * 16) | 0;
+      const v = c === 'x' ? r : (r & 0x3) | 0x8;
+      return v.toString(16);
+    });
   }
 
   private refreshBench(): void {
@@ -172,7 +195,134 @@ export class AdminTeamMatchComponent implements OnInit {
     }
   }
 
+  removeTeam(teamId: string): void {
+    this.teams = this.teams.filter((t) => t.id !== teamId);
+    delete this.deleteTeamVisible[teamId];
+    this.teamCount = this.teams.length;
+    this.refreshBench();
+    this.saveTeamsDirect(); // suppression immédiate en base
+  }
+
+  addMatch(): void {
+    if (!this.tournament) return;
+    const teamA = this.teams.find((t) => t.id === this.newMatch.teamAId);
+    const teamB = this.teams.find((t) => t.id === this.newMatch.teamBId);
+    if (!teamA || !teamB || !this.newMatch.startTime) {
+      this.error = 'Selectionne deux equipes et une date.';
+      return;
+    }
+    // composer avec la date du tournoi (ou aujourd'hui) + heure saisie
+    const baseDate = this.tournament?.date ? new Date(this.tournament.date) : new Date();
+    const [hh, mm] = this.newMatch.startTime.split(':');
+    baseDate.setHours(Number(hh) || 0, Number(mm) || 0, 0, 0);
+    const iso = baseDate.toISOString();
+
+    const match: Match = {
+      id: this.makeId(),
+      tournamentId: this.tournament.id,
+      startTime: iso,
+      teamA: teamA.name,
+      teamB: teamB.name,
+      teamAId: teamA.id,
+      teamBId: teamB.id,
+      scoreA: null,
+      scoreB: null,
+    };
+    this.matches = [...this.matches, match];
+    this.tournament.matches = this.matches;
+    this.newMatch = { teamAId: '', teamBId: '', startTime: '' };
+    this.error = '';
+  }
+
+  removeMatch(matchId: string): void {
+    this.matches = this.matches.filter((m) => m.id !== matchId);
+    if (this.tournament) {
+      this.tournament.matches = this.matches;
+    }
+  }
+
+  async saveMatches(): Promise<void> {
+    if (!this.tournament?.id) return;
+    this.savingMatches = true;
+    this.error = '';
+    this.saveMessage = '';
+    try {
+      const payload: Tournament = {
+        ...this.tournament,
+        matches: this.matches.map((m) => ({ ...m, tournamentId: this.tournament!.id })),
+      };
+      await this.tournamentService.upsertTournament(payload);
+      const refreshed = await this.tournamentService.getTournamentById(this.tournament.id);
+      if (refreshed) {
+        this.tournament = refreshed;
+        this.matches = refreshed.matches ?? [];
+      }
+      this.saveMessage = 'Matchs sauvegardés.';
+      this.router.navigate(['/admin/prochain']);
+    } catch (err: unknown) {
+      this.error = err instanceof Error ? err.message : 'Impossible de sauvegarder les matchs';
+    } finally {
+      this.savingMatches = false;
+    }
+  }
+
   async saveTeams(): Promise<void> {
+    await this.openConfirm();
+  }
+
+  closeConfirm(): void {
+    this.confirmVisible = false;
+  }
+
+  private async openConfirm(): Promise<void> {
+    this.error = '';
+    this.saveMessage = '';
+    this.confirmVisible = false;
+    this.underfilled = [];
+    this.summaryTeams = [...this.teams];
+
+    if (!this.tournament?.id) {
+      this.error = 'Aucun tournoi cible.';
+      return;
+    }
+
+    this.underfilled = this.teams
+      .filter((t) => t.members.length < this.playersPerTeam)
+      .map((t) => `${t.name} (${t.members.length}/${this.playersPerTeam})`);
+
+    // Check duplicates in current selection
+    const nameCounts: Record<string, number> = {};
+    for (const t of this.teams) {
+      const key = t.name.trim().toLowerCase();
+      nameCounts[key] = (nameCounts[key] || 0) + 1;
+      if (nameCounts[key] > 1) {
+        this.error = `Nom d'équipe dupliqué : "${t.name}". Chaque équipe doit avoir un nom unique.`;
+        return;
+      }
+    }
+
+    const existing = await this.teamService.getTeams(this.tournament.id);
+    const existingMap = new Map(existing.map((t) => [t.name?.toLowerCase(), t.id]));
+    const duplicate = this.teams.find((t) => {
+      const existingId = existingMap.get(t.name.toLowerCase());
+      return existingId && existingId !== t.id;
+    });
+    if (duplicate) {
+      this.error = `Une équipe nommée "${duplicate.name}" existe déjà pour ce tournoi. Choisis un autre nom.`;
+      return;
+    }
+
+    this.confirmVisible = true;
+  }
+
+  async confirmSave(): Promise<void> {
+    if (!this.tournament?.id) return;
+    await this.persistTeams();
+    this.confirmVisible = false;
+    this.router.navigate(['/admin/prochain']);
+  }
+
+  private async persistTeams(): Promise<void> {
     if (!this.tournament?.id) return;
     this.loading = true;
     this.error = '';
@@ -191,10 +341,63 @@ export class AdminTeamMatchComponent implements OnInit {
       }));
       await this.teamService.saveTeams(this.tournament.id, payload);
       this.saveMessage = 'Équipes sauvegardées.';
+      this.router.navigate(['/admin/prochain']);
     } catch (err: unknown) {
       this.error = err instanceof Error ? err.message : 'Impossible de sauvegarder les équipes';
     } finally {
       this.loading = false;
     }
+  }
+
+  private saveTeamsDirect(): void {
+    // déclenche une sauvegarde silencieuse sans passer par la modale
+    this.persistTeams();
+  }
+
+  showDelete(teamId: string): void {
+    this.deleteTeamVisible[teamId] = true;
+  }
+
+  hideDelete(teamId: string): void {
+    this.deleteTeamVisible[teamId] = false;
+  }
+
+  onTeamTouchStart(event: TouchEvent, teamId: string): void {
+    this.touchStartTeamX[teamId] = event.touches[0].clientX;
+  }
+
+  onTeamTouchMove(event: TouchEvent, teamId: string): void {
+    if (this.activeTouchReg) {
+      event.preventDefault();
+    }
+    this.touchStartTeamX[teamId] ??= event.touches[0].clientX;
+  }
+
+  onTeamTouchEnd(event: TouchEvent, teamId: string): void {
+    const startX = this.touchStartTeamX[teamId] ?? 0;
+    const endX = event.changedTouches[0].clientX;
+    const deltaX = endX - startX;
+    if (deltaX < -60) {
+      if (this.deleteTeamVisible[teamId]) {
+        this.removeTeam(teamId);
+      } else {
+        this.showDelete(teamId);
+      }
+    } else if (deltaX > 60) {
+      this.hideDelete(teamId);
+    }
+    delete this.touchStartTeamX[teamId];
+
+    // if a player touch is active, drop into this team
+    if (this.activeTouchReg) {
+      this.assign(this.activeTouchReg, teamId);
+      this.activeTouchReg = null;
+    }
+  }
+
+  onBenchTouchStart(event: TouchEvent, reg: Registration): void {
+    if (!this.isTouch) return;
+    event.preventDefault();
+    this.activeTouchReg = reg;
   }
 }

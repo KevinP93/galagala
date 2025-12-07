@@ -103,7 +103,7 @@ export class AdminTournamentFormComponent implements OnInit {
       await this.tournamentService.upsertTournament(payload);
       this.savedMessage = 'Tournoi enregistré.';
       this.tournament.id = id;
-      this.router.navigate(['/admin/tournois', id]);
+      this.router.navigate(['/admin/prochain']);
     } catch (err: unknown) {
       this.error = err instanceof Error ? err.message : 'Impossible de sauvegarder';
     } finally {

@@ -13,6 +13,10 @@ export class RegistrationService {
   }
 
   async getRegistrations(tournamentId?: string | null): Promise<Registration[]> {
+    if (!tournamentId) {
+      return [];
+    }
+
     let query = this.supabase
       .from('registrations')
       .select(
@@ -27,9 +31,7 @@ export class RegistrationService {
       )
       .order('created_at', { ascending: false });
 
-    if (tournamentId) {
-      query = query.eq('tournament_id', tournamentId);
-    }
+    query = query.eq('tournament_id', tournamentId);
 
     const { data, error } = await query;
 

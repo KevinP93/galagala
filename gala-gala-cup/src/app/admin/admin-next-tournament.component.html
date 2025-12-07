@@ -14,26 +14,33 @@
   <div *ngIf="error" class="error">{{ error }}</div>
   <div *ngIf="!loading && !error && !tournament" class="muted">Aucun tournoi à venir.</div>
 
-  <section *ngIf="tournament" class="card">
-    <h3>{{ tournament.name }}</h3>
-    <p class="muted">{{ tournament.date | date: 'dd MMM yyyy' }} · {{ tournament.location }}</p>
-  </section>
-
-  <section class="card">
-    <div class="list__head">
-      <h3>Inscriptions ({{ registrations.length }})</h3>
+  <section
+    *ngIf="tournament"
+    class="card swipe-card"
+    (click)="openDetails()"
+    (touchstart)="handleTouchStart($event)"
+    (touchmove)="handleTouchMove($event)"
+    (touchend)="handleTouchEnd()"
+  >
+    <div class="swipe-card__body">
+      <h3>{{ tournament.name }}</h3>
+      <p class="muted">{{ tournament.date | date: 'dd MMM yyyy' }} · {{ tournament.location }}</p>
     </div>
-    <div *ngIf="!registrations.length" class="muted">Aucun joueur inscrit pour l’instant.</div>
-    <ul *ngIf="registrations.length">
-      <li *ngFor="let entry of registrations">
-        <strong>{{ entry.username || 'Profil inconnu' }}</strong>
-        <span class="time">{{ entry.createdAt | date: 'short' }}</span>
-      </li>
-    </ul>
+    <button
+      *ngIf="showDeleteAction"
+      type="button"
+      class="delete-tab"
+      (click)="confirmDelete(); $event.stopPropagation()"
+      aria-label="Supprimer le tournoi"
+    >
+      ×
+    </button>
   </section>
 
-  <section class="actions">
-    <a routerLink="/admin/prochain/gestion" class="btn">Créer équipes et matchs</a>
+  <section class="actions" *ngIf="tournament">
+    <a routerLink="/admin/prochain/gestion" class="btn">
+      {{ canEditTeams ? 'Éditer équipes et matchs' : 'Créer équipes et matchs' }}
+    </a>
   </section>
 
   <div class="modal-backdrop" *ngIf="showEditModal">
@@ -63,6 +70,51 @@
       <div class="modal__actions">
         <button type="button" class="btn ghost" (click)="toggleWinnerForm()">Annuler</button>
         <button type="button" class="btn" (click)="saveWinner()">Enregistrer</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal-backdrop" *ngIf="showDetails">
+    <div class="modal wide">
+      <div class="modal__head">
+        <div>
+          <h3>{{ tournament?.name }}</h3>
+          <p class="muted">{{ tournament?.date | date: 'dd MMM yyyy' }} · {{ tournament?.location }}</p>
+        </div>
+        <button class="pill-remove" (click)="closeDetails()" aria-label="Fermer">×</button>
+      </div>
+
+      <div class="modal__section">
+        <h4>Inscriptions ({{ registrations.length }})</h4>
+        <div *ngIf="!registrations.length" class="muted">Aucun joueur inscrit.</div>
+        <ul *ngIf="registrations.length" class="mini-list">
+          <li *ngFor="let entry of registrations">
+            {{ entry.username || 'Profil' }}
+            <span class="muted-sm">{{ entry.createdAt | date: 'short' }}</span>
+          </li>
+        </ul>
+      </div>
+
+      <div class="modal__section">
+        <h4>Équipes ({{ teams.length }})</h4>
+        <div *ngIf="!teams.length" class="muted">Aucune équipe.</div>
+        <ul *ngIf="teams.length" class="mini-list">
+          <li *ngFor="let team of teams">
+            <div class="mini-title">{{ team.name }}</div>
+            <div class="muted-sm">{{ team?.members?.length || 0 }} joueur(s)</div>
+          </li>
+        </ul>
+      </div>
+
+      <div class="modal__section">
+        <h4>Matchs ({{ tournament?.matches?.length || 0 }})</h4>
+        <div *ngIf="!(tournament?.matches?.length)" class="muted">Aucun match prévu.</div>
+        <ul *ngIf="tournament?.matches?.length" class="mini-list">
+          <li *ngFor="let m of tournament?.matches || []">
+            {{ m.teamA }} vs {{ m.teamB }}
+            <span class="muted-sm">{{ m.startTime | date: 'short' }}</span>
+          </li>
+        </ul>
       </div>
     </div>
   </div>

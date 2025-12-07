@@ -25,6 +25,10 @@ export class AdminNextTournamentComponent implements OnInit {
   editWinner = '';
   showWinnerForm = false;
   selectedWinnerTeamId: string | null = null;
+  showDeleteAction = false;
+  showDetails = false;
+  private touchStartX = 0;
+  private touchEndX = 0;
 
   constructor(
     private tournamentService: TournamentService,
@@ -53,6 +57,53 @@ export class AdminNextTournamentComponent implements OnInit {
     } finally {
       this.loading = false;
     }
+  }
+
+  async deleteTournament(): Promise<void> {
+    if (!this.tournament?.id) return;
+    this.loading = true;
+    this.error = '';
+    try {
+      await this.tournamentService.deleteTournament(this.tournament.id);
+      this.tournament = null;
+      this.registrations = [];
+      this.teams = [];
+      this.showDeleteAction = false;
+    } catch (err: unknown) {
+      this.error = err instanceof Error ? err.message : 'Impossible de supprimer le tournoi';
+    } finally {
+      this.loading = false;
+    }
+  }
+
+  handleTouchStart(event: TouchEvent): void {
+    this.touchStartX = event.touches[0].clientX;
+    this.touchEndX = this.touchStartX;
+  }
+
+  handleTouchMove(event: TouchEvent): void {
+    this.touchEndX = event.touches[0].clientX;
+  }
+
+  handleTouchEnd(): void {
+    const deltaX = this.touchEndX - this.touchStartX;
+    const isSwipeLeft = deltaX < -60;
+    const isSwipeRight = deltaX > 60;
+    if (isSwipeLeft) {
+      if (this.showDeleteAction) {
+        this.confirmDelete();
+      } else {
+        this.showDeleteAction = true;
+      }
+    } else if (isSwipeRight) {
+      this.showDeleteAction = false;
+    }
+    this.touchStartX = 0;
+    this.touchEndX = 0;
+  }
+
+  confirmDelete(): void {
+    this.deleteTournament();
   }
 
   openEditModal(): void {
@@ -116,5 +167,19 @@ export class AdminNextTournamentComponent implements OnInit {
     } finally {
       this.loading = false;
     }
+  }
+
+  openDetails(): void {
+    if (this.tournament) {
+      this.showDetails = true;
+    }
+  }
+
+  closeDetails(): void {
+    this.showDetails = false;
+  }
+
+  get canEditTeams(): boolean {
+    return this.teams.length >= 2;
   }
 }

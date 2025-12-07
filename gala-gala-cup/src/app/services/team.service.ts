@@ -50,6 +50,17 @@ export class TeamService {
     const teamsPayload: { id: string; tournament_id: string; name: string; color: string | null }[] = [];
     const idMap = new Map<string, string>();
 
+    // existants pour nettoyage
+    const { data: existingTeams, error: existingErr } = await this.supabase
+      .from('teams')
+      .select('id')
+      .eq('tournament_id', tournamentId);
+    if (existingErr) {
+      console.error('Erreur lecture équipes existantes:', existingErr);
+      throw new Error('Impossible de vérifier les équipes existantes');
+    }
+    const existingIds = (existingTeams ?? []).map((t: any) => t.id as string);
+
     teams.forEach((team) => {
       const assignedId = this.ensureUuid(team.id);
       idMap.set(team.id || assignedId, assignedId);
@@ -62,6 +73,7 @@ export class TeamService {
     });
 
     const ids = teamsPayload.map((t) => t.id);
+    const toDelete = existingIds.filter((id) => !ids.includes(id));
 
     const { error: upsertErr } = await this.supabase.from('teams').upsert(teamsPayload, { onConflict: 'id' });
     if (upsertErr) {
@@ -74,6 +86,19 @@ export class TeamService {
     if (delErr) {
       console.error('Erreur purge membres:', delErr);
       throw new Error('Impossible de mettre à jour les membres');
+    }
+
+    // Supprimer les équipes retirées
+    if (toDelete.length) {
+      const { error: delOldMembers } = await this.supabase.from('team_members').delete().in('team_id', toDelete);
+      if (delOldMembers) {
+        console.error('Erreur purge anciens membres:', delOldMembers);
+      }
+      const { error: delTeams } = await this.supabase.from('teams').delete().in('id', toDelete);
+      if (delTeams) {
+        console.error('Erreur suppression équipes obsolètes:', delTeams);
+        throw new Error('Impossible de supprimer les équipes obsolètes');
+      }
     }
 
     const membersPayload: TeamMember[] = teams.flatMap((team) =>

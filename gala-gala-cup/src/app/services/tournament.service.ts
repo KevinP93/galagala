@@ -152,15 +152,21 @@ export class TournamentService {
       }
     }
 
-    if (idsToKeep.length) {
-      const { error: deleteError } = await this.supabase
-        .from('matches')
-        .delete()
-        .eq('tournament_id', tournamentId)
-        .not('id', 'in', `(${idsToKeep.map((id) => `'${id}'`).join(',')})`);
-
-      if (deleteError) {
-        console.error('Erreur suppression matches obsolètes:', deleteError);
+    // Nettoyage des anciens matchs
+    const { data: existingMatches, error: existingErr } = await this.supabase
+      .from('matches')
+      .select('id')
+      .eq('tournament_id', tournamentId);
+    if (existingErr) {
+      console.error('Erreur récupération matches existants:', existingErr);
+    } else {
+      const existingIds = (existingMatches ?? []).map((m: any) => m.id as string);
+      const toDelete = existingIds.filter((id) => !idsToKeep.includes(id));
+      if (toDelete.length) {
+        const { error: deleteError } = await this.supabase.from('matches').delete().in('id', toDelete);
+        if (deleteError) {
+          console.error('Erreur suppression matches obsolètes:', deleteError);
+        }
       }
     }
   }

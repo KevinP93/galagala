@@ -24,6 +24,9 @@
     <h3>{{ nextTournament?.name }}</h3>
     <p class="muted">{{ nextTournament?.location }}</p>
     <p class="muted">Le {{ nextTournament?.date | date: 'dd MMM yyyy' }}</p>
+    <div class="muted-sm" *ngIf="nextTournament?.matches?.length">
+      {{ nextTournament?.matches?.length || 0 }} match(s) prévu(s)
+    </div>
     <a routerLink="/listes" class="btn ghost full">Je m’inscris</a>
   </div>
 </section>

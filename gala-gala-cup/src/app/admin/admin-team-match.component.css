@@ -123,3 +123,155 @@ select {
   cursor: pointer;
   font-weight: 700;
 }
+
+.swipe-card {
+  position: relative;
+  overflow: hidden;
+  padding-right: 5rem;
+}
+
+.delete-tab {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  width: 5rem;
+  background: #ff4d4f;
+  color: #fff;
+  border: none;
+  font-weight: 900;
+  letter-spacing: 0.05em;
+  cursor: pointer;
+  font-size: 1.4rem;
+}
+
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.25);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  z-index: 50;
+}
+
+.modal {
+  background: #fff;
+  border-radius: 16px;
+  padding: 1rem;
+  border: 1px solid #e5e5e5;
+  width: min(520px, 90vw);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.12);
+  display: grid;
+  gap: 0.75rem;
+}
+
+.summary-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: grid;
+  gap: 0.5rem;
+}
+
+.summary-list li {
+  display: grid;
+  gap: 0.25rem;
+  background: #f8f8f8;
+  border: 1px solid #ececec;
+  border-radius: 10px;
+  padding: 0.5rem 0.75rem;
+}
+
+.pill-group {
+  display: flex;
+  gap: 0.35rem;
+  flex-wrap: wrap;
+}
+
+.pill.tiny {
+  font-size: 0.85rem;
+  padding: 0.3rem 0.6rem;
+}
+
+.warning {
+  color: #b45309;
+  font-weight: 700;
+}
+
+.modal__actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.5rem;
+}
+
+.matches {
+  margin-top: 1rem;
+  display: grid;
+  gap: 0.75rem;
+}
+
+.match-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.match-form {
+  display: grid;
+  gap: 0.5rem;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  align-items: end;
+}
+
+.match-form label {
+  display: grid;
+  gap: 0.25rem;
+  font-weight: 700;
+}
+
+.match-form select,
+.match-form input {
+  padding: 0.45rem 0.6rem;
+  border-radius: 8px;
+  border: 1px solid #d6d9e4;
+}
+
+.match-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: grid;
+  gap: 0.5rem;
+}
+
+.match-list li {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.6rem 0.75rem;
+  border: 1px solid #ececec;
+  border-radius: 10px;
+}
+
+@media (hover: none) {
+  .pill.drag {
+    touch-action: none;
+  }
+  .team {
+    touch-action: manipulation;
+  }
+}
+
+.modal label {
+  display: grid;
+  gap: 0.35rem;
+  font-weight: 700;
+}
+
+.modal select {
+  padding: 0.45rem 0.6rem;
+  border-radius: 8px;
+  border: 1px solid #d6d9e4;
+}
