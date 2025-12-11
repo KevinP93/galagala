@@ -31,6 +31,7 @@ export class TournamentService {
           team_b,
           team_a_id,
           team_b_id,
+          status,
           score_a,
           score_b
         )
@@ -64,6 +65,7 @@ export class TournamentService {
           team_b,
           team_a_id,
           team_b_id,
+          status,
           score_a,
           score_b
         )
@@ -98,12 +100,14 @@ export class TournamentService {
           team_b,
           team_a_id,
           team_b_id,
+          status,
           score_a,
           score_b
         )
       `
       )
       .gte('date', new Date().toISOString())
+      .is('winner_team', null)
       .order('date', { ascending: true })
       .limit(1);
 
@@ -204,6 +208,7 @@ export class TournamentService {
       teamB: row.team_b,
       teamAId: row.team_a_id ?? null,
       teamBId: row.team_b_id ?? null,
+      status: row.status ?? 'planned',
       scoreA: row.score_a ?? null,
       scoreB: row.score_b ?? null,
     };
@@ -228,6 +233,7 @@ export class TournamentService {
       team_b: match.teamB,
       team_a_id: match.teamAId ?? null,
       team_b_id: match.teamBId ?? null,
+      status: match.status ?? 'planned',
       score_a: match.scoreA ?? null,
       score_b: match.scoreB ?? null,
     };

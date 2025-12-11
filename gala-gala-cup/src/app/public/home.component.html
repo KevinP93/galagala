@@ -1,7 +1,7 @@
 <section class="hero">
   <div class="hero__text">
     <p class="kicker">Just play it</p>
-    <h1>GalaGala CUP, l’app qui suit le tempo des matchs façon Nike.</h1>
+    <h1>GalaGala CUP, l’app qui suit le tempo des matchs.</h1>
     <p class="sub">
       Reçois les alertes avant le coup d’envoi, inscris tes joueurs en deux gestes et garde la trace des équipes
       championnes.
@@ -10,17 +10,12 @@
       <a routerLink="/matches" class="btn">Suivre les matchs</a>
       <a routerLink="/listes" class="btn outline">Listes des joueurs</a>
     </div>
-    <div class="chips" *ngIf="hasNextTournament; else noNextTournament">
-      <span class="chip">Prochain tournoi</span>
-      <span class="chip ghost">{{ nextTournament?.date | date: 'dd MMM yyyy' }}</span>
-      <span class="chip ghost">{{ nextTournament?.location }}</span>
-    </div>
     <ng-template #noNextTournament>
       <p class="muted">Aucun tournoi planifié pour le moment.</p>
     </ng-template>
   </div>
   <div class="hero__card" *ngIf="hasNextTournament">
-    <p class="label">Prochain event</p>
+    <p class="label">Prochain événement</p>
     <h3>{{ nextTournament?.name }}</h3>
     <p class="muted">{{ nextTournament?.location }}</p>
     <p class="muted">Le {{ nextTournament?.date | date: 'dd MMM yyyy' }}</p>

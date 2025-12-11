@@ -4,6 +4,7 @@ export interface Match {
   startTime: string;
   teamA: string;
   teamB: string;
+  status?: 'planned' | 'in_progress' | 'finished' | null;
   scoreA?: number | null;
   scoreB?: number | null;
   teamAId?: string | null;

@@ -9,7 +9,7 @@
       </div>
     </div>
     <ng-container *ngIf="isLoggedIn">
-      <button class="burger" (click)="toggleMenu()" aria-label="Ouvrir le menu">
+      <button class="burger" [class.open]="menuOpen" (click)="toggleMenu()" aria-label="Ouvrir le menu">
         <span></span>
         <span></span>
         <span></span>
@@ -20,7 +20,10 @@
         <a routerLink="/listes" routerLinkActive="active" (click)="closeMenu()">Listes</a>
         <a routerLink="/historique" routerLinkActive="active" (click)="closeMenu()">Historique</a>
         <a *ngIf="isAdmin" routerLink="/admin" routerLinkActive="active" class="nav-link" (click)="closeMenu()">Gérer</a>
-        <button type="button" class="btn outline" (click)="logout(); closeMenu()">Déconnexion</button>
+        <button type="button" class="logout-btn" (click)="logout(); closeMenu()">
+          <span class="icon">⏻</span>
+          Déconnexion
+        </button>
       </nav>
     </ng-container>
   </header>

@@ -1,19 +1,22 @@
-<div class="page">
-  <header>
-    <p class="eyebrow">Listes</p>
-    <h2>Joueurs inscrits</h2>
-    <p class="muted">
-      Visualise les équipes déjà engagées. Ajoute la tienne en un clic pour le prochain tournoi.
-    </p>
+<div class="page lists">
+  <header class="masthead">
+    <div>
+      <p class="eyebrow">Listes</p>
+      <h2>Joueurs inscrits</h2>
+      <p class="muted">
+        Visualise les équipes déjà engagées. Ajoute la tienne en un clic pour le prochain tournoi.
+      </p>
+    </div>
+    <div class="highlight-card">
+      <p class="label">En un geste</p>
+      <h4>Inscris ton profil</h4>
+      <button class="btn full" (click)="register()" [disabled]="submitting || isRegistered">
+        {{ submitting ? 'Inscription...' : (isRegistered ? 'Déjà inscrit' : 'S’inscrire') }}
+      </button>
+      <p class="muted-sm">Inscription via ton compte connecté.</p>
+      <p class="error" *ngIf="error">{{ error }}</p>
+    </div>
   </header>
-
-  <div class="form">
-    <button class="btn" (click)="register()" [disabled]="submitting || isRegistered">
-      {{ submitting ? 'Inscription...' : (isRegistered ? 'Déjà inscrit' : 'S’inscrire') }}
-    </button>
-    <p class="muted">L’inscription utilise ton profil connecté (username ou équipe associée).</p>
-    <p class="error" *ngIf="error">{{ error }}</p>
-  </div>
 
   <section class="list">
     <div class="list__head">

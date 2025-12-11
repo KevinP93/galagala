@@ -75,6 +75,7 @@ export class RegistrationService {
       .from('tournaments')
       .select('id, date')
       .gte('date', new Date().toISOString())
+      .is('winner_team', null)
       .order('date', { ascending: true })
       .limit(1);
 

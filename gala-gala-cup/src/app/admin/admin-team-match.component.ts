@@ -26,13 +26,14 @@ export class AdminTeamMatchComponent implements OnInit {
   bench: Registration[] = [];
   teams: TeamSlot[] = [];
   matches: Match[] = [];
-  newMatch: Partial<Match> = { teamAId: '', teamBId: '', startTime: '' };
+  newMatch: Partial<Match> = { teamAId: '', teamBId: '', startTime: '', status: 'planned' };
   teamCount = 2;
   playersPerTeam = 5;
   loading = false;
   savingMatches = false;
   error = '';
   teamSelect: Record<string, string> = {};
+  teamsSaved = false;
   saveMessage = '';
   confirmVisible = false;
   underfilled: string[] = [];
@@ -59,6 +60,15 @@ export class AdminTeamMatchComponent implements OnInit {
     this.error = '';
     try {
       this.tournament = await this.tournamentService.getNextTournament();
+      if (!this.tournament) {
+        this.error = 'Aucun tournoi à gérer pour le moment.';
+        this.registrations = [];
+        this.teams = [];
+        this.matches = [];
+        this.bench = [];
+        this.teamsSaved = false;
+        return;
+      }
       this.registrations = await this.registrationService.getRegistrations(this.tournament?.id ?? undefined);
       this.registrations = this.registrations.map((r) => ({
         ...r,
@@ -81,10 +91,15 @@ export class AdminTeamMatchComponent implements OnInit {
             })),
           }));
           this.teamCount = this.teams.length;
+          this.teamsSaved = true;
         }
       }
 
-      this.matches = this.tournament?.matches ?? [];
+      this.matches = (this.tournament?.matches ?? []).map((m) => ({
+        ...m,
+        status: m.status ?? 'planned',
+      }));
+      this.syncTournamentMatches();
 
       if (!this.teams.length) {
         this.generateTeams();
@@ -104,6 +119,7 @@ export class AdminTeamMatchComponent implements OnInit {
       list.push({ id: this.makeId(), name: `Équipe ${i + 1}`, members: [] });
     }
     this.teams = list;
+    this.markTeamsDirty();
     this.refreshBench();
   }
 
@@ -111,6 +127,11 @@ export class AdminTeamMatchComponent implements OnInit {
     if (count < 1) return;
     this.teamCount = count;
     this.generateTeams();
+  }
+
+  onPlayersPerTeamChange(count: number): void {
+    this.playersPerTeam = Number(count);
+    this.markTeamsDirty();
   }
 
   assign(registration: Registration, teamId: string | null | undefined): void {
@@ -132,12 +153,14 @@ export class AdminTeamMatchComponent implements OnInit {
       t.id === target.id ? { ...t, members: [...t.members, registration] } : t
     );
     this.bench = updatedBench;
+    this.markTeamsDirty();
     this.refreshBench();
     this.teamSelect[registration.userId || registration.id] = target.id;
   }
 
   removeFromTeam(team: TeamSlot, member: Registration): void {
     team.members = team.members.filter((m) => (m.userId || m.id) !== (member.userId || member.id));
+    this.markTeamsDirty();
     this.refreshBench();
   }
 
@@ -179,6 +202,24 @@ export class AdminTeamMatchComponent implements OnInit {
     }
   }
 
+  onMatchStatusChange(matchId: string, status: 'planned' | 'in_progress' | 'finished'): void {
+    this.matches = this.matches.map((m) => (m.id === matchId ? { ...m, status } : m));
+    this.syncTournamentMatches();
+  }
+
+  onMatchScoreChange(matchId: string, field: 'scoreA' | 'scoreB', value: string | number): void {
+    const parsed = value === '' || value === null ? null : Number(value);
+    this.matches = this.matches.map((m) =>
+      m.id === matchId ? { ...m, [field]: isNaN(parsed as number) ? null : parsed } : m
+    );
+    this.syncTournamentMatches();
+  }
+
+  markFinished(matchId: string): void {
+    this.matches = this.matches.map((m) => (m.id === matchId ? { ...m, status: 'finished' } : m));
+    this.syncTournamentMatches();
+  }
+
   autoAssign(): void {
     const shuffled = [...this.bench];
     for (let i = shuffled.length - 1; i > 0; i--) {
@@ -199,12 +240,17 @@ export class AdminTeamMatchComponent implements OnInit {
     this.teams = this.teams.filter((t) => t.id !== teamId);
     delete this.deleteTeamVisible[teamId];
     this.teamCount = this.teams.length;
+    this.markTeamsDirty();
     this.refreshBench();
     this.saveTeamsDirect(); // suppression immédiate en base
   }
 
   addMatch(): void {
     if (!this.tournament) return;
+    if (!this.teamsSaved) {
+      this.error = 'Sauvegarde les équipes avant de créer des matchs.';
+      return;
+    }
     const teamA = this.teams.find((t) => t.id === this.newMatch.teamAId);
     const teamB = this.teams.find((t) => t.id === this.newMatch.teamBId);
     if (!teamA || !teamB || !this.newMatch.startTime) {
@@ -225,31 +271,38 @@ export class AdminTeamMatchComponent implements OnInit {
       teamB: teamB.name,
       teamAId: teamA.id,
       teamBId: teamB.id,
+      status: 'planned',
       scoreA: null,
       scoreB: null,
     };
     this.matches = [...this.matches, match];
-    this.tournament.matches = this.matches;
-    this.newMatch = { teamAId: '', teamBId: '', startTime: '' };
+    this.syncTournamentMatches();
+    this.newMatch = { teamAId: '', teamBId: '', startTime: '', status: 'planned' };
     this.error = '';
   }
 
   removeMatch(matchId: string): void {
     this.matches = this.matches.filter((m) => m.id !== matchId);
-    if (this.tournament) {
-      this.tournament.matches = this.matches;
-    }
+    this.syncTournamentMatches();
   }
 
   async saveMatches(): Promise<void> {
     if (!this.tournament?.id) return;
+    if (!this.teamsSaved) {
+      this.error = 'Sauvegarde les équipes avant de gérer les matchs.';
+      return;
+    }
     this.savingMatches = true;
     this.error = '';
     this.saveMessage = '';
     try {
       const payload: Tournament = {
         ...this.tournament,
-        matches: this.matches.map((m) => ({ ...m, tournamentId: this.tournament!.id })),
+        matches: this.matches.map((m) => ({
+          ...m,
+          tournamentId: this.tournament!.id,
+          status: m.status ?? 'planned',
+        })),
       };
       await this.tournamentService.upsertTournament(payload);
       const refreshed = await this.tournamentService.getTournamentById(this.tournament.id);
@@ -319,7 +372,6 @@ export class AdminTeamMatchComponent implements OnInit {
     if (!this.tournament?.id) return;
     await this.persistTeams();
     this.confirmVisible = false;
-    this.router.navigate(['/admin/prochain']);
   }
 
   private async persistTeams(): Promise<void> {
@@ -327,6 +379,7 @@ export class AdminTeamMatchComponent implements OnInit {
     this.loading = true;
     this.error = '';
     this.saveMessage = '';
+    this.teamsSaved = false;
     try {
       const payload: Team[] = this.teams.map((t) => ({
         id: t.id,
@@ -340,8 +393,8 @@ export class AdminTeamMatchComponent implements OnInit {
         })),
       }));
       await this.teamService.saveTeams(this.tournament.id, payload);
-      this.saveMessage = 'Équipes sauvegardées.';
-      this.router.navigate(['/admin/prochain']);
+      this.saveMessage = 'Équipes sauvegardées. Tu peux maintenant créer les matchs.';
+      this.teamsSaved = true;
     } catch (err: unknown) {
       this.error = err instanceof Error ? err.message : 'Impossible de sauvegarder les équipes';
     } finally {
@@ -352,6 +405,11 @@ export class AdminTeamMatchComponent implements OnInit {
   private saveTeamsDirect(): void {
     // déclenche une sauvegarde silencieuse sans passer par la modale
     this.persistTeams();
+  }
+
+  markTeamsDirty(): void {
+    this.teamsSaved = false;
+    this.saveMessage = '';
   }
 
   showDelete(teamId: string): void {
@@ -399,5 +457,11 @@ export class AdminTeamMatchComponent implements OnInit {
     if (!this.isTouch) return;
     event.preventDefault();
     this.activeTouchReg = reg;
+  }
+
+  private syncTournamentMatches(): void {
+    if (this.tournament) {
+      this.tournament.matches = this.matches;
+    }
   }
 }

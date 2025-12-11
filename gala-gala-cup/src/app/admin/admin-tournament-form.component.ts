@@ -14,7 +14,7 @@ import { TournamentService } from '../services/tournament.service';
 })
 export class AdminTournamentFormComponent implements OnInit {
   tournament: Tournament = this.newTournament();
-  newMatch: Partial<Match> = { teamA: '', teamB: '', startTime: '' };
+  newMatch: Partial<Match> = { teamA: '', teamB: '', startTime: '', status: 'planned' };
   savedMessage = '';
   error = '';
   loading = false;
@@ -53,7 +53,13 @@ export class AdminTournamentFormComponent implements OnInit {
         this.error = 'Tournoi introuvable';
         return;
       }
-      this.tournament = data;
+      this.tournament = {
+        ...data,
+        matches: (data.matches || []).map((m) => ({
+          ...m,
+          status: m.status ?? 'planned',
+        })),
+      };
     } catch (err: unknown) {
       this.error = err instanceof Error ? err.message : 'Erreur lors du chargement';
     } finally {
@@ -71,11 +77,12 @@ export class AdminTournamentFormComponent implements OnInit {
       teamA: this.newMatch.teamA.trim(),
       teamB: this.newMatch.teamB.trim(),
       startTime: this.newMatch.startTime,
+      status: 'planned',
       scoreA: null,
       scoreB: null,
     };
     this.tournament = { ...this.tournament, matches: [...this.tournament.matches, match] };
-    this.newMatch = { teamA: '', teamB: '', startTime: '' };
+    this.newMatch = { teamA: '', teamB: '', startTime: '', status: 'planned' };
   }
 
   removeMatch(matchId: string): void {
@@ -96,7 +103,11 @@ export class AdminTournamentFormComponent implements OnInit {
     const payload: Tournament = {
       ...this.tournament,
       id,
-      matches: this.tournament.matches.map((m) => ({ ...m, tournamentId: id })),
+      matches: this.tournament.matches.map((m) => ({
+        ...m,
+        tournamentId: id,
+        status: m.status ?? 'planned',
+      })),
     };
     this.loading = true;
     try {

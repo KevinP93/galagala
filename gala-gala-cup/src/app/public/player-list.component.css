@@ -1,5 +1,14 @@
-.page header {
-  margin-bottom: 1rem;
+.lists {
+  display: grid;
+  gap: 1.25rem;
+}
+
+.masthead {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
 }
 
 .eyebrow {
@@ -14,19 +23,37 @@
   color: var(--muted);
 }
 
-.form {
-  display: grid;
-  gap: 0.75rem;
-  background: #fff;
-  border: 1px solid #e5e5e5;
+.muted-sm {
+  color: var(--muted);
+  font-size: 0.9rem;
+  margin: 0;
+}
+
+.highlight-card {
+  background: linear-gradient(135deg, #0f0f0f, #1b1b1b);
+  color: #fff;
   border-radius: var(--radius);
+  border: 1px solid #232323;
+  box-shadow: 0 18px 36px rgba(0, 0, 0, 0.3);
   padding: 1rem;
-  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.06);
-  max-width: 480px;
+  display: grid;
+  gap: 0.35rem;
+  width: min(320px, 100%);
+}
+
+.highlight-card .label,
+.highlight-card .muted-sm {
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.highlight-card .btn.full {
+  width: 100%;
+  background: #fff;
+  color: #0f0f0f;
 }
 
 .list {
-  margin-top: 1.5rem;
+  margin-top: 0.5rem;
 }
 
 .list__head {
@@ -76,4 +103,14 @@ li {
 
 .error {
   color: #b91c1c;
+}
+
+@media (max-width: 800px) {
+  .masthead {
+    flex-direction: column;
+  }
+
+  .highlight-card {
+    width: 100%;
+  }
 }

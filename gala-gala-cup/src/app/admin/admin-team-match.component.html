@@ -1,6 +1,10 @@
-<div class="page">
-  <header>
-    <h2>Équipes et matchs</h2>
+<div class="page gestion">
+  <header class="masthead">
+    <div>
+      <p class="eyebrow">Admin · Équipes & Matchs</p>
+      <h2>Compose les équipes et planifie les matchs</h2>
+      <p class="muted">Ajuste les rosters, distribue les joueurs et programme les rencontres.</p>
+    </div>
     <div class="controls">
       <div class="control-card">
         <label>Nombre d’équipes</label>
@@ -8,7 +12,7 @@
       </div>
       <div class="control-card">
         <label>Joueurs max / équipe</label>
-        <input type="number" min="1" [(ngModel)]="playersPerTeam" />
+        <input type="number" min="1" [(ngModel)]="playersPerTeam" (ngModelChange)="onPlayersPerTeamChange($event)" />
       </div>
       <button type="button" class="btn ghost" (click)="autoAssign()" [disabled]="!bench.length">Générer aléatoire</button>
       <button type="button" class="btn" (click)="saveTeams()">Sauvegarder</button>
@@ -18,94 +22,150 @@
   <p class="muted" *ngIf="loading">Chargement...</p>
   <p class="error" *ngIf="error">{{ error }}</p>
 
-  <section class="bench card">
-    <h3>Banc (non assignés) — {{ bench.length }}</h3>
-    <div class="bench-list" *ngIf="bench.length; else benchEmpty">
-      <div class="bench-row" *ngFor="let reg of bench">
-        <div
-          class="pill drag"
-          draggable="true"
-          (dragstart)="handleDragStart($event, reg)"
-          (touchstart)="onBenchTouchStart($event, reg)"
-        >
-          {{ reg.username || 'Profil' }} <span class="muted-sm"></span>
-        </div>
-      </div>
-    </div>
-    <ng-template #benchEmpty>
-      <p class="muted">Plus aucun joueur à assigner.</p>
-    </ng-template>
-  </section>
+  <div class="status-bar">
+    <span class="chip">Banc : {{ bench.length }}</span>
+    <span class="chip">Équipes : {{ teams.length }}</span>
+    <span class="chip ghost">Matchs : {{ matches.length }}</span>
+  </div>
 
-  <section class="teams">
-    <article
-      class="card team swipe-card"
-      *ngFor="let team of teams"
-      (dragover)="allowDrop($event)"
-      (drop)="handleDrop($event, team)"
-      (touchstart)="onTeamTouchStart($event, team.id)"
-      (touchmove)="onTeamTouchMove($event, team.id)"
-      (touchend)="onTeamTouchEnd($event, team.id)"
-    >
-      <div class="team__head">
-        <input type="text" [(ngModel)]="team.name" class="team-name" />
-        <span class="tag">{{ team.members.length }}/{{ playersPerTeam }}</span>
-      </div>
-      <p class="muted">Dépose un joueur ici ou retire-le avec la croix.</p>
-      <div class="list members">
-        <div class="pill" *ngFor="let reg of team.members">
-          <span>{{ reg.username || 'Profil' }}</span>
-          <button type="button" class="pill-remove" (click)="removeFromTeam(team, reg)">×</button>
+  <section class="board-grid">
+    <article class="bench card">
+      <div class="list__head">
+        <div>
+          <p class="label">Banc</p>
+          <h3>Non assignés ({{ bench.length }})</h3>
         </div>
-        <p class="muted" *ngIf="!team.members.length">Aucun joueur assigné.</p>
       </div>
-      <button
-        *ngIf="deleteTeamVisible[team.id]"
-        type="button"
-        class="delete-tab"
-        (click)="removeTeam(team.id)"
-        aria-label="Supprimer l'équipe"
-      >
-        ×
-      </button>
+      <div class="bench-list" *ngIf="bench.length; else benchEmpty">
+        <div class="bench-row" *ngFor="let reg of bench">
+          <div
+            class="pill drag"
+            draggable="true"
+            (dragstart)="handleDragStart($event, reg)"
+            (touchstart)="onBenchTouchStart($event, reg)"
+          >
+            {{ reg.username || 'Profil' }} <span class="muted-sm"></span>
+          </div>
+        </div>
+      </div>
+      <ng-template #benchEmpty>
+        <p class="muted">Plus aucun joueur à assigner.</p>
+      </ng-template>
     </article>
+
+    <section class="teams">
+      <article
+        class="card team swipe-card"
+        *ngFor="let team of teams"
+        (dragover)="allowDrop($event)"
+        (drop)="handleDrop($event, team)"
+        (touchstart)="onTeamTouchStart($event, team.id)"
+        (touchmove)="onTeamTouchMove($event, team.id)"
+        (touchend)="onTeamTouchEnd($event, team.id)"
+      >
+        <div class="team__head">
+          <input type="text" [(ngModel)]="team.name" (ngModelChange)="markTeamsDirty()" class="team-name" />
+          <span class="tag">{{ team.members.length }}/{{ playersPerTeam }}</span>
+        </div>
+        <p class="muted">Dépose un joueur ici ou retire-le avec la croix.</p>
+        <div class="list members">
+          <div class="pill" *ngFor="let reg of team.members">
+            <span>{{ reg.username || 'Profil' }}</span>
+            <button type="button" class="pill-remove" (click)="removeFromTeam(team, reg)">×</button>
+          </div>
+          <p class="muted" *ngIf="!team.members.length">Aucun joueur assigné.</p>
+        </div>
+        <button
+          *ngIf="deleteTeamVisible[team.id]"
+          type="button"
+          class="delete-tab"
+          (click)="removeTeam(team.id)"
+          aria-label="Supprimer l'équipe"
+        >
+          ×
+        </button>
+      </article>
+    </section>
   </section>
 
-  <section class="matches card" *ngIf="teams.length">
-    <div class="match-head">
-      <h3>Matchs</h3>
-      <button class="btn ghost" type="button" (click)="saveMatches()" [disabled]="savingMatches">Sauvegarder les matchs</button>
+  <section class="matches card" *ngIf="teams.length" [class.locked]="!teamsSaved">
+    <div class="locked-banner" *ngIf="!teamsSaved">
+      Sauvegarde les équipes pour débloquer la création des matchs.
     </div>
-    <div class="match-form">
+    <div class="match-head match-content">
+      <h3>Matchs</h3>
+      <button class="btn ghost" type="button" (click)="saveMatches()" [disabled]="savingMatches || !teamsSaved">Sauvegarder les matchs</button>
+    </div>
+    <div class="match-form match-content">
       <label>
         Équipe A
-        <select [(ngModel)]="newMatch.teamAId">
+        <select [(ngModel)]="newMatch.teamAId" [disabled]="!teamsSaved">
           <option value="">Choisir</option>
           <option *ngFor="let t of teams" [value]="t.id">{{ t.name }}</option>
         </select>
       </label>
       <label>
         Équipe B
-        <select [(ngModel)]="newMatch.teamBId">
+        <select [(ngModel)]="newMatch.teamBId" [disabled]="!teamsSaved">
           <option value="">Choisir</option>
           <option *ngFor="let t of teams" [value]="t.id">{{ t.name }}</option>
         </select>
       </label>
       <label>
         Heure du match
-        <input type="time" [(ngModel)]="newMatch.startTime" />
+        <input type="time" [(ngModel)]="newMatch.startTime" [disabled]="!teamsSaved" />
       </label>
-      <button class="btn" type="button" (click)="addMatch()">Ajouter le match</button>
+      <button class="btn" type="button" (click)="addMatch()" [disabled]="!teamsSaved">Ajouter le match</button>
     </div>
 
     <div *ngIf="!matches.length" class="muted">Aucun match créé pour l'instant.</div>
-    <ul class="match-list" *ngIf="matches.length">
+    <ul class="match-list match-content" *ngIf="matches.length">
       <li *ngFor="let m of matches">
-        <div>
-          <strong>{{ m.teamA }} vs {{ m.teamB }}</strong>
-          <span class="muted-sm">{{ m.startTime | date: 'short' }}</span>
+        <div class="match-row">
+          <div class="match-info">
+            <strong>{{ m.teamA }} vs {{ m.teamB }}</strong>
+            <span class="muted-sm">{{ m.startTime | date: 'short' }}</span>
+          </div>
+          <div class="match-controls">
+            <select
+              [ngModel]="m.status || 'planned'"
+              (ngModelChange)="onMatchStatusChange(m.id, $event)"
+              [disabled]="!teamsSaved"
+            >
+              <option value="planned">À venir</option>
+              <option value="in_progress">En cours</option>
+              <option value="finished">Terminé</option>
+            </select>
+            <div class="score-inputs">
+              <input
+                type="number"
+                min="0"
+                placeholder="A"
+                [ngModel]="m.scoreA"
+                (ngModelChange)="onMatchScoreChange(m.id, 'scoreA', $event)"
+                [disabled]="!teamsSaved"
+              />
+              <span>-</span>
+              <input
+                type="number"
+                min="0"
+                placeholder="B"
+                [ngModel]="m.scoreB"
+                (ngModelChange)="onMatchScoreChange(m.id, 'scoreB', $event)"
+                [disabled]="!teamsSaved"
+              />
+            </div>
+            <button
+              class="btn tiny ghost"
+              type="button"
+              (click)="markFinished(m.id)"
+              [disabled]="!teamsSaved"
+            >
+              Marquer terminé
+            </button>
+          </div>
+          <button class="pill-remove" type="button" (click)="removeMatch(m.id)" [disabled]="!teamsSaved">×</button>
         </div>
-        <button class="pill-remove" type="button" (click)="removeMatch(m.id)">×</button>
       </li>
     </ul>
   </section>

@@ -45,13 +45,21 @@ export class AdminNextTournamentComponent implements OnInit {
     this.error = '';
     try {
       this.tournament = await this.tournamentService.getNextTournament();
-      if (this.tournament?.id) {
-        this.registrations = await this.registrationService.getRegistrations(this.tournament.id);
-        this.editDate = this.tournament.date?.slice(0, 10);
-        this.editWinner = this.tournament.winner ?? '';
-        this.teams = await this.teamService.getTeams(this.tournament.id);
-        this.selectedWinnerTeamId = this.tournament.winner ? this.teams.find((t) => t.name === this.tournament?.winner)?.id ?? null : null;
+      if (!this.tournament) {
+        this.registrations = [];
+        this.teams = [];
+        this.editDate = '';
+        this.editWinner = '';
+        this.selectedWinnerTeamId = null;
+        return;
       }
+      this.registrations = await this.registrationService.getRegistrations(this.tournament.id);
+      this.editDate = this.tournament.date?.slice(0, 10);
+      this.editWinner = this.tournament.winner ?? '';
+      this.teams = await this.teamService.getTeams(this.tournament.id);
+      this.selectedWinnerTeamId = this.tournament.winner
+        ? this.teams.find((t) => t.name === this.tournament?.winner)?.id ?? null
+        : null;
     } catch (err: unknown) {
       this.error = err instanceof Error ? err.message : 'Impossible de charger le prochain tournoi';
     } finally {
@@ -151,17 +159,15 @@ export class AdminNextTournamentComponent implements OnInit {
     this.loading = true;
     this.error = '';
     try {
-      // maj tournoi
       await this.tournamentService.upsertTournament({
         ...this.tournament,
         winner: winnerTeam.name,
       });
-      this.tournament.winner = winnerTeam.name;
 
-      // insérer historique + joueurs snapshot
       const historyId = crypto.randomUUID();
       await this.teamService.saveHistory(this.tournament.id, historyId, winnerTeam);
       this.showWinnerForm = false;
+      await this.load();
     } catch (err: unknown) {
       this.error = err instanceof Error ? err.message : 'Impossible de sauvegarder le vainqueur';
     } finally {

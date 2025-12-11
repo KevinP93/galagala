@@ -1,12 +1,14 @@
-<div class="page">
-  <header>
-    <h2>Prochain tournoi</h2>
-    <p class="muted">Visualise les inscrits et prépare les équipes et matchs.</p>
+<div class="page next">
+  <header class="masthead">
+    <div>
+      <p class="eyebrow">Admin · Prochain tournoi</p>
+      <h2>Prépare le prochain événement</h2>
+      <p class="muted">Inscriptions, équipes, matchs, vainqueur : tout est ici.</p>
+    </div>
     <div class="actions" *ngIf="tournament">
-      <button type="button" class="btn" (click)="openEditModal()">Éditer le tournoi</button>
-         <a routerLink="/admin/tournois/nouveau" class="btn outline">Créer un autre tournoi</a>
-      <button type="button" class="btn ghost" (click)="toggleWinnerForm()">Déclarer le vainqueur</button>
-   
+      <a routerLink="/admin/tournois/nouveau" class="btn outline">Créer un autre tournoi</a>
+      <button type="button" class="btn ghost" (click)="openEditModal()">Éditer le tournoi</button>
+      <button type="button" class="btn" (click)="toggleWinnerForm()">Déclarer le vainqueur</button>
     </div>
   </header>
 
@@ -14,33 +16,85 @@
   <div *ngIf="error" class="error">{{ error }}</div>
   <div *ngIf="!loading && !error && !tournament" class="muted">Aucun tournoi à venir.</div>
 
-  <section
-    *ngIf="tournament"
-    class="card swipe-card"
-    (click)="openDetails()"
-    (touchstart)="handleTouchStart($event)"
-    (touchmove)="handleTouchMove($event)"
-    (touchend)="handleTouchEnd()"
-  >
-    <div class="swipe-card__body">
-      <h3>{{ tournament.name }}</h3>
-      <p class="muted">{{ tournament.date | date: 'dd MMM yyyy' }} · {{ tournament.location }}</p>
-    </div>
-    <button
-      *ngIf="showDeleteAction"
-      type="button"
-      class="delete-tab"
-      (click)="confirmDelete(); $event.stopPropagation()"
-      aria-label="Supprimer le tournoi"
+  <section *ngIf="tournament" class="grid-panels">
+    <article
+      class="card highlight swipe-card"
+      (click)="openDetails()"
+      (touchstart)="handleTouchStart($event)"
+      (touchmove)="handleTouchMove($event)"
+      (touchend)="handleTouchEnd()"
     >
-      ×
-    </button>
-  </section>
+      <div class="swipe-card__body">
+        <p class="label">Tournoi</p>
+        <h3>{{ tournament.name }}</h3>
+        <p class="muted">{{ tournament.date | date: 'dd MMM yyyy' }} · {{ tournament.location }}</p>
+        <div class="meta-row">
+          <span class="pill">{{ registrations.length }} inscrits</span>
+          <span class="pill">{{ teams.length }} équipes</span>
+          <span class="pill">{{ tournament.matches?.length || 0 }} matchs</span>
+        </div>
+      </div>
+      <button
+        *ngIf="showDeleteAction"
+        type="button"
+        class="delete-tab"
+        (click)="confirmDelete(); $event.stopPropagation()"
+        aria-label="Supprimer le tournoi"
+      >
+        ×
+      </button>
+    </article>
 
-  <section class="actions" *ngIf="tournament">
-    <a routerLink="/admin/prochain/gestion" class="btn">
-      {{ canEditTeams ? 'Éditer équipes et matchs' : 'Créer équipes et matchs' }}
-    </a>
+    <article class="card">
+      <div class="list__head">
+        <div>
+          <p class="label">Participants</p>
+          <h4>Inscriptions ({{ registrations.length }})</h4>
+        </div>
+        <a class="btn ghost" routerLink="/admin/prochain/gestion">Assigner aux équipes</a>
+      </div>
+      <div *ngIf="!registrations.length" class="muted">Aucun joueur inscrit.</div>
+      <ul *ngIf="registrations.length">
+        <li *ngFor="let entry of registrations">
+          <span>{{ entry.username || 'Profil' }}</span>
+          <span class="muted-sm">{{ entry.createdAt | date: 'short' }}</span>
+        </li>
+      </ul>
+    </article>
+
+    <article class="card">
+      <div class="list__head">
+        <div>
+          <p class="label">Équipes</p>
+          <h4>{{ teams.length }} équipe(s)</h4>
+        </div>
+        <a class="btn ghost" routerLink="/admin/prochain/gestion">Gérer</a>
+      </div>
+      <div *ngIf="!teams.length" class="muted">Aucune équipe.</div>
+      <ul *ngIf="teams.length">
+        <li *ngFor="let team of teams">
+          <div class="mini-title">{{ team.name }}</div>
+          <span class="muted-sm">{{ team?.members?.length || 0 }} joueur(s)</span>
+        </li>
+      </ul>
+    </article>
+
+    <article class="card">
+      <div class="list__head">
+        <div>
+          <p class="label">Matchs</p>
+          <h4>{{ tournament?.matches?.length || 0 }} match(s)</h4>
+        </div>
+        <a class="btn ghost" routerLink="/admin/prochain/gestion">Planifier</a>
+      </div>
+      <div *ngIf="!(tournament?.matches?.length)" class="muted">Aucun match prévu.</div>
+      <ul *ngIf="tournament?.matches?.length">
+        <li *ngFor="let m of tournament?.matches || []">
+          <span>{{ m.teamA }} vs {{ m.teamB }}</span>
+          <span class="muted-sm">{{ m.startTime | date: 'short' }}</span>
+        </li>
+      </ul>
+    </article>
   </section>
 
   <div class="modal-backdrop" *ngIf="showEditModal">
@@ -80,6 +134,11 @@
         <div>
           <h3>{{ tournament?.name }}</h3>
           <p class="muted">{{ tournament?.date | date: 'dd MMM yyyy' }} · {{ tournament?.location }}</p>
+          <div class="modal__grid">
+            <span class="badge dot">{{ registrations.length }} inscrits</span>
+            <span class="badge">{{ teams.length }} équipes</span>
+            <span class="badge">{{ tournament?.matches?.length || 0 }} matchs</span>
+          </div>
         </div>
         <button class="pill-remove" (click)="closeDetails()" aria-label="Fermer">×</button>
       </div>

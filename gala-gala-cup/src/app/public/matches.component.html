@@ -1,16 +1,23 @@
-<div class="page">
-  <header>
-    <p class="eyebrow">Matchs</p>
-    <h2>Planning épuré, noir sur blanc.</h2>
-    <p class="muted">
-      Les matchs à venir et les scores récents dans une grille inspirée de l’app Nike : lisible, directe, sans bruit.
-    </p>
+<div class="page matches">
+  <header class="masthead">
+    <div>
+      <p class="eyebrow">Matchs</p>
+      <h2>Planning clair, scores en direct.</h2>
+      <p class="muted">
+        Prochains matchs, live et résultats récents dans une vue unique.
+      </p>
+    </div>
+    <div class="filters">
+      <span class="chip ghost">Alertes push activées</span>
+      <span class="chip">{{ upcomingMatches.length }} à venir</span>
+      <span class="chip">{{ inProgressMatches.length }} en cours</span>
+    </div>
   </header>
 
   <section class="section">
     <div class="section__head">
       <h3>À venir</h3>
-      <span class="tag">Alertes push activées</span>
+      <span class="tag">Prochaines rencontres</span>
     </div>
     <div *ngIf="upcomingTournaments.length && !upcomingMatches.length" class="muted">
       Tournois à venir : 
@@ -29,7 +36,36 @@
           <span>{{ match.teamB }}</span>
         </div>
         <div class="meta">
-          <span class="label">À venir</span>
+          <span class="label">
+            {{
+              match.status === 'in_progress'
+                ? 'En cours'
+                : match.status === 'finished'
+                ? 'Terminé'
+                : 'À venir'
+            }}
+          </span>
+          <span class="muted">{{ match.startTime | date: 'dd MMM yyyy · HH:mm' }}</span>
+        </div>
+      </article>
+    </div>
+  </section>
+
+  <section class="section" *ngIf="!loading && !error">
+    <div class="section__head">
+      <h3>En cours</h3>
+      <span class="tag ghost">Live</span>
+    </div>
+    <div *ngIf="!inProgressMatches.length" class="empty">Aucun match en cours.</div>
+    <div class="match-grid" *ngIf="inProgressMatches.length">
+      <article *ngFor="let match of inProgressMatches" class="card">
+        <div class="teams">
+          <span>{{ match.teamA }}</span>
+          <strong>{{ match.scoreA ?? '-' }} - {{ match.scoreB ?? '-' }}</strong>
+          <span>{{ match.teamB }}</span>
+        </div>
+        <div class="meta">
+          <span class="label">En cours</span>
           <span class="muted">{{ match.startTime | date: 'dd MMM yyyy · HH:mm' }}</span>
         </div>
       </article>
@@ -39,7 +75,7 @@
   <section class="section">
     <div class="section__head">
       <h3>Résultats</h3>
-      <span class="tag ghost">Dernière édition</span>
+      <span class="tag ghost">Derniers scores</span>
     </div>
     <div *ngIf="!loading && !error && !pastMatches.length" class="empty">Aucun match terminé.</div>
     <div class="match-grid" *ngIf="!loading && !error && pastMatches.length">
@@ -50,7 +86,9 @@
           <span>{{ match.teamB }}</span>
         </div>
         <div class="meta">
-          <span class="label dark">Terminé</span>
+          <span class="label dark">
+            {{ match.status === 'in_progress' ? 'En cours' : 'Terminé' }}
+          </span>
           <span class="muted">{{ match.startTime | date: 'dd MMM yyyy · HH:mm' }}</span>
         </div>
       </article>

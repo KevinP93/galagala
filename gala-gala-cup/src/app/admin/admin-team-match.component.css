@@ -7,11 +7,30 @@
   font-weight: 700;
 }
 
+.masthead {
+  display: grid;
+  gap: 0.35rem;
+  margin-bottom: 0.5rem;
+}
+
+.eyebrow {
+  margin: 0;
+  text-transform: uppercase;
+  letter-spacing: 0.18em;
+  font-size: 0.8rem;
+  color: var(--muted);
+}
+
+.gestion {
+  display: grid;
+  gap: 1rem;
+}
+
 .actions {
   display: flex;
   gap: 0.5rem;
   flex-wrap: wrap;
-  margin: 0.5rem 0;
+  margin: 0.25rem 0 0;
 }
 
 .controls {
@@ -44,6 +63,26 @@
   border: 1px solid #d6d9e4;
 }
 
+.status-bar {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.chip {
+  padding: 0.45rem 0.75rem;
+  border-radius: 999px;
+  background: #f5f5f5;
+  border: 1px solid #e5e5e5;
+  font-weight: 700;
+}
+
+.chip.ghost {
+  background: #0f0f0f;
+  color: #fff;
+  border-color: #0f0f0f;
+}
+
 .inline {
   display: inline-flex;
   align-items: center;
@@ -56,6 +95,12 @@
   border-radius: var(--radius);
   padding: 1rem;
   box-shadow: 0 10px 20px rgba(0, 0, 0, 0.06);
+}
+
+.board-grid {
+  display: grid;
+  grid-template-columns: 320px 1fr;
+  gap: 1rem;
 }
 
 .bench .list,
@@ -92,7 +137,6 @@ select {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
   gap: 1rem;
-  margin-top: 1rem;
 }
 
 .team__head {
@@ -207,7 +251,6 @@ select {
 }
 
 .matches {
-  margin-top: 1rem;
   display: grid;
   gap: 0.75rem;
 }
@@ -255,12 +298,71 @@ select {
   border-radius: 10px;
 }
 
+.match-row {
+  display: grid;
+  grid-template-columns: 1fr auto auto;
+  align-items: center;
+  gap: 0.75rem;
+  width: 100%;
+}
+
+.match-controls {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.score-inputs {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.score-inputs input {
+  width: 70px;
+}
+
+.btn.tiny {
+  padding: 0.35rem 0.5rem;
+  font-size: 0.9rem;
+}
+
+.matches.locked {
+  position: relative;
+}
+
+.matches.locked .match-content {
+  opacity: 0.5;
+  pointer-events: none;
+}
+
+.locked-banner {
+  background: #f3f4f6;
+  border: 1px dashed #d1d5db;
+  color: #6b7280;
+  padding: 0.5rem 0.75rem;
+  border-radius: 10px;
+  font-weight: 700;
+}
+
 @media (hover: none) {
   .pill.drag {
     touch-action: none;
   }
   .team {
     touch-action: manipulation;
+  }
+}
+
+@media (max-width: 900px) {
+  .board-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .controls {
+    flex-direction: column;
+    align-items: stretch;
   }
 }
 

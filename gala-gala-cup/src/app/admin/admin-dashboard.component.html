@@ -1,32 +1,64 @@
-<div class="page">
-  <header>
+<div class="page dashboard">
+  <header class="masthead">
     <div>
+      <p class="eyebrow">Admin</p>
       <h2>Tableau de bord</h2>
-      <p class="muted">Vue rapide sur l’activité de la GalaGala CUP.</p>
+      <p class="muted">Vue rapide sur l’activité, les matchs et les actions à prévoir.</p>
     </div>
     <div class="actions">
-      <a routerLink="/admin/tournois/nouveau" class="btn">Nouveau tournoi</a>
       <a routerLink="/admin/prochain" class="btn ghost">Gérer le prochain tournoi</a>
-      <a routerLink="/matches" class="btn outline">Voir les matchs publics</a>
+      <a routerLink="/admin/tournois/nouveau" class="btn">Nouveau tournoi</a>
     </div>
   </header>
 
   <p class="muted" *ngIf="loading">Chargement...</p>
   <p class="error" *ngIf="error">{{ error }}</p>
 
-  <section class="stats">
-    <article *ngFor="let stat of stats" class="card">
-      <p class="label">{{ stat.label }}</p>
-      <h3>{{ stat.value }}</h3>
+  <section class="grid-panels">
+    <article class="card highlight" *ngIf="tournament; else noTournament">
+      <div class="card-head">
+        <div>
+          <p class="label">Prochain tournoi</p>
+          <h3>{{ tournament?.name }}</h3>
+          <p class="muted">{{ tournament?.location }} · {{ tournament?.date | date: 'dd MMM yyyy' }}</p>
+        </div>
+        <span class="pill">{{ tournament?.matches?.length || 0 }} matchs</span>
+      </div>
+      <div class="meta-row">
+        <div>
+          <p class="muted-sm">Inscrits</p>
+          <strong>{{ stats[0]?.value }}</strong>
+        </div>
+        <div>
+          <p class="muted-sm">Matchs planifiés</p>
+          <strong>{{ stats[1]?.value }}</strong>
+        </div>
+      </div>
+      <div class="card-actions">
+        <a routerLink="/admin/prochain" class="btn ghost">Ouvrir la fiche</a>
+        <a routerLink="/admin/prochain/gestion" class="btn outline">Équipes & matchs</a>
+      </div>
+    </article>
+    <ng-template #noTournament>
+      <article class="card empty">
+        <h3>Pas de tournoi planifié</h3>
+        <p class="muted">Crée un tournoi pour commencer à collecter les inscriptions.</p>
+        <a routerLink="/admin/tournois/nouveau" class="btn">Créer un tournoi</a>
+      </article>
+    </ng-template>
+
+    <article class="card stats-card">
+      <h3>Statistiques</h3>
+      <div class="stats">
+        <article *ngFor="let stat of stats" class="stat-item">
+          <p class="label">{{ stat.label }}</p>
+          <h3>{{ stat.value }}</h3>
+        </article>
+      </div>
     </article>
   </section>
 
-  <section class="card" *ngIf="tournament">
-    <h3>{{ tournament.name }}</h3>
-    <p class="muted">{{ tournament.date | date: 'dd MMM yyyy' }} · {{ tournament.location }}</p>
-  </section>
-
-  <section class="alerts">
+  <section class="card alerts">
     <div class="alerts__head">
       <h3>Actions à prévoir</h3>
       <span class="tag">{{ alerts.length }}</span>

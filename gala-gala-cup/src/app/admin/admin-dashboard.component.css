@@ -1,10 +1,22 @@
-.page header {
+.dashboard {
+  display: grid;
+  gap: 1.5rem;
+}
+
+.masthead {
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
   gap: 1rem;
-  margin-bottom: 1.5rem;
   flex-wrap: wrap;
+}
+
+.eyebrow {
+  margin: 0;
+  text-transform: uppercase;
+  letter-spacing: 0.18em;
+  font-size: 0.8rem;
+  color: var(--muted);
 }
 
 .muted {
@@ -17,9 +29,9 @@
   flex-wrap: wrap;
 }
 
-.stats {
+.grid-panels {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
   gap: 1rem;
 }
 
@@ -27,8 +39,86 @@
   background: #fff;
   border: 1px solid #e5e5e5;
   border-radius: var(--radius);
-  padding: 1rem;
+  padding: 1.1rem;
   box-shadow: 0 10px 20px rgba(0, 0, 0, 0.06);
+}
+
+.card-head {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  align-items: center;
+}
+
+.highlight {
+  background: linear-gradient(135deg, #111111, #1c1c1c);
+  color: #fff;
+  border: 1px solid #232323;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.25);
+}
+
+.highlight .label,
+.highlight .muted {
+  color: rgba(255, 255, 255, 0.72);
+}
+
+.pill {
+  padding: 0.35rem 0.9rem;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.12);
+  color: #fff;
+  font-weight: 700;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+}
+
+.meta-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap: 0.75rem;
+  margin: 1rem 0;
+}
+
+.muted-sm {
+  color: var(--muted);
+  font-size: 0.9rem;
+  margin: 0 0 0.2rem;
+}
+
+.highlight .muted-sm {
+  color: rgba(255, 255, 255, 0.65);
+}
+
+.card-actions {
+  display: flex;
+  gap: 0.6rem;
+  flex-wrap: wrap;
+}
+
+.highlight .btn.outline {
+  border-color: rgba(255, 255, 255, 0.5);
+  color: #fff;
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.stats-card h3 {
+  margin-top: 0;
+}
+
+.stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 0.75rem;
+}
+
+.stat-item {
+  background: #f8f8f8;
+  border: 1px solid #ededed;
+  border-radius: 12px;
+  padding: 0.75rem;
+}
+
+.stat-item h3 {
+  margin: 0.1rem 0 0;
 }
 
 .label {
@@ -38,7 +128,7 @@
 }
 
 .alerts {
-  margin-top: 1.5rem;
+  margin-top: 0.5rem;
 }
 
 .alerts__head {
@@ -61,4 +151,9 @@
   background: #0f0f0f;
   color: #fff;
   font-weight: 700;
+}
+
+.empty {
+  display: grid;
+  gap: 0.35rem;
 }
