@@ -1,20 +1,20 @@
 <div class="page next">
   <header class="masthead">
     <div>
-      <p class="eyebrow">Admin · Prochain tournoi</p>
-      <h2>Prépare le prochain événement</h2>
-      <p class="muted">Inscriptions, équipes, matchs, vainqueur : tout est ici.</p>
+      <p class="eyebrow">Admin - Prochain tournoi</p>
+      <h2>Prepare le prochain evenement</h2>
+      <p class="muted">Inscriptions, equipes, matchs, vainqueur : tout est ici.</p>
     </div>
     <div class="actions" *ngIf="tournament">
-      <a routerLink="/admin/tournois/nouveau" class="btn outline">Créer un autre tournoi</a>
-      <button type="button" class="btn ghost" (click)="openEditModal()">Éditer le tournoi</button>
-      <button type="button" class="btn" (click)="toggleWinnerForm()">Déclarer le vainqueur</button>
+      <a routerLink="/admin/tournois/nouveau" class="btn outline">Creer un autre tournoi</a>
+      <button type="button" class="btn ghost" (click)="openEditModal()">Editer le tournoi</button>
+      <button type="button" class="btn" (click)="toggleWinnerForm()">Declarer le vainqueur</button>
     </div>
   </header>
 
   <div *ngIf="loading" class="muted">Chargement...</div>
   <div *ngIf="error" class="error">{{ error }}</div>
-  <div *ngIf="!loading && !error && !tournament" class="muted">Aucun tournoi à venir.</div>
+  <div *ngIf="!loading && !error && !tournament" class="muted">Aucun tournoi a venir.</div>
 
   <section *ngIf="tournament" class="grid-panels">
     <article
@@ -27,11 +27,11 @@
       <div class="swipe-card__body">
         <p class="label">Tournoi</p>
         <h3>{{ tournament.name }}</h3>
-        <p class="muted">{{ tournament.date | date: 'dd MMM yyyy' }} · {{ tournament.location }}</p>
+        <p class="muted">{{ tournament.date | date: 'dd MMM yyyy' }} - {{ tournament.location }}</p>
         <div class="meta-row">
           <span class="pill">{{ registrations.length }} inscrits</span>
-          <span class="pill">{{ teams.length }} équipes</span>
-          <span class="pill">{{ tournament.matches?.length || 0 }} matchs</span>
+          <span class="pill">{{ teams.length }} equipes</span>
+          <span class="pill">{{ tournament.matches.length || 0 }} matchs</span>
         </div>
       </div>
       <button
@@ -41,7 +41,7 @@
         (click)="confirmDelete(); $event.stopPropagation()"
         aria-label="Supprimer le tournoi"
       >
-        ×
+        -
       </button>
     </article>
 
@@ -51,7 +51,7 @@
           <p class="label">Participants</p>
           <h4>Inscriptions ({{ registrations.length }})</h4>
         </div>
-        <a class="btn ghost" routerLink="/admin/prochain/gestion">Assigner aux équipes</a>
+        <a class="btn ghost" routerLink="/admin/prochain/gestion">Assigner aux equipes</a>
       </div>
       <div *ngIf="!registrations.length" class="muted">Aucun joueur inscrit.</div>
       <ul *ngIf="registrations.length">
@@ -65,16 +65,16 @@
     <article class="card">
       <div class="list__head">
         <div>
-          <p class="label">Équipes</p>
-          <h4>{{ teams.length }} équipe(s)</h4>
+          <p class="label">Equipes</p>
+          <h4>{{ teams.length }} equipe(s)</h4>
         </div>
-        <a class="btn ghost" routerLink="/admin/prochain/gestion">Gérer</a>
+        <a class="btn ghost" routerLink="/admin/prochain/gestion">Gerer</a>
       </div>
-      <div *ngIf="!teams.length" class="muted">Aucune équipe.</div>
+      <div *ngIf="!teams.length" class="muted">Aucune equipe.</div>
       <ul *ngIf="teams.length">
         <li *ngFor="let team of teams">
           <div class="mini-title">{{ team.name }}</div>
-          <span class="muted-sm">{{ team?.members?.length || 0 }} joueur(s)</span>
+          <span class="muted-sm">{{ team.members.length || 0 }} joueur(s)</span>
         </li>
       </ul>
     </article>
@@ -83,13 +83,13 @@
       <div class="list__head">
         <div>
           <p class="label">Matchs</p>
-          <h4>{{ tournament?.matches?.length || 0 }} match(s)</h4>
+          <h4>{{ tournament.matches.length || 0 }} match(s)</h4>
         </div>
         <a class="btn ghost" routerLink="/admin/prochain/gestion">Planifier</a>
       </div>
-      <div *ngIf="!(tournament?.matches?.length)" class="muted">Aucun match prévu.</div>
-      <ul *ngIf="tournament?.matches?.length">
-        <li *ngFor="let m of tournament?.matches || []">
+      <div *ngIf="!tournament.matches.length" class="muted">Aucun match prevu.</div>
+      <ul *ngIf="tournament.matches.length">
+        <li *ngFor="let m of tournament.matches || []">
           <span>{{ m.teamA }} vs {{ m.teamB }}</span>
           <span class="muted-sm">{{ m.startTime | date: 'short' }}</span>
         </li>
@@ -97,9 +97,9 @@
     </article>
   </section>
 
-  <div class="modal-backdrop" *ngIf="showEditModal">
+  <div class="modal-backdrop" *ngIf="showEditModal && tournament">
     <div class="modal">
-      <h3>Éditer le tournoi</h3>
+      <h3>Editer le tournoi</h3>
       <label>
         <span>Date</span>
         <input type="date" [(ngModel)]="editDate" />
@@ -111,13 +111,13 @@
     </div>
   </div>
 
-  <div class="modal-backdrop" *ngIf="showWinnerForm">
+  <div class="modal-backdrop" *ngIf="showWinnerForm && tournament">
     <div class="modal">
-      <h3>Déclarer le vainqueur</h3>
+      <h3>Declarer le vainqueur</h3>
       <label>
-        <span>Équipe gagnante</span>
+        <span>Equipe gagnante</span>
         <select [(ngModel)]="selectedWinnerTeamId">
-          <option [ngValue]="null">Sélectionne une équipe</option>
+          <option [ngValue]="null">Selectionne une equipe</option>
           <option *ngFor="let team of teams" [ngValue]="team.id">{{ team.name }}</option>
         </select>
       </label>
@@ -128,19 +128,19 @@
     </div>
   </div>
 
-  <div class="modal-backdrop" *ngIf="showDetails">
+  <div class="modal-backdrop" *ngIf="showDetails && tournament">
     <div class="modal wide">
       <div class="modal__head">
         <div>
-          <h3>{{ tournament?.name }}</h3>
-          <p class="muted">{{ tournament?.date | date: 'dd MMM yyyy' }} · {{ tournament?.location }}</p>
+          <h3>{{ tournament.name }}</h3>
+          <p class="muted">{{ tournament.date | date: 'dd MMM yyyy' }} - {{ tournament.location }}</p>
           <div class="modal__grid">
             <span class="badge dot">{{ registrations.length }} inscrits</span>
-            <span class="badge">{{ teams.length }} équipes</span>
-            <span class="badge">{{ tournament?.matches?.length || 0 }} matchs</span>
+            <span class="badge">{{ teams.length }} equipes</span>
+            <span class="badge">{{ tournament.matches.length || 0 }} matchs</span>
           </div>
         </div>
-        <button class="pill-remove" (click)="closeDetails()" aria-label="Fermer">×</button>
+        <button class="pill-remove" (click)="closeDetails()" aria-label="Fermer">-</button>
       </div>
 
       <div class="modal__section">
@@ -155,21 +155,21 @@
       </div>
 
       <div class="modal__section">
-        <h4>Équipes ({{ teams.length }})</h4>
-        <div *ngIf="!teams.length" class="muted">Aucune équipe.</div>
+        <h4>Equipes ({{ teams.length }})</h4>
+        <div *ngIf="!teams.length" class="muted">Aucune equipe.</div>
         <ul *ngIf="teams.length" class="mini-list">
           <li *ngFor="let team of teams">
             <div class="mini-title">{{ team.name }}</div>
-            <div class="muted-sm">{{ team?.members?.length || 0 }} joueur(s)</div>
+            <div class="muted-sm">{{ team.members.length || 0 }} joueur(s)</div>
           </li>
         </ul>
       </div>
 
       <div class="modal__section">
-        <h4>Matchs ({{ tournament?.matches?.length || 0 }})</h4>
-        <div *ngIf="!(tournament?.matches?.length)" class="muted">Aucun match prévu.</div>
-        <ul *ngIf="tournament?.matches?.length" class="mini-list">
-          <li *ngFor="let m of tournament?.matches || []">
+        <h4>Matchs ({{ tournament.matches.length || 0 }})</h4>
+        <div *ngIf="!tournament.matches.length" class="muted">Aucun match prevu.</div>
+        <ul *ngIf="tournament.matches.length" class="mini-list">
+          <li *ngFor="let m of tournament.matches || []">
             {{ m.teamA }} vs {{ m.teamB }}
             <span class="muted-sm">{{ m.startTime | date: 'short' }}</span>
           </li>

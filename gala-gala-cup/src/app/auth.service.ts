@@ -14,12 +14,12 @@ export class AuthService {
     this.supabase = supabaseClient;
   }
 
-  async signup(email: string, password: string, username: string, phone?: string): Promise<void> {
+  async signup(email: string, password: string, username: string): Promise<void> {
     const { data, error } = await this.supabase.auth.signUp({
       email,
       password,
       options: {
-        data: { username, phone },
+        data: { username },
       },
     });
 
@@ -28,7 +28,6 @@ export class AuthService {
       throw new Error(error.message);
     }
 
-    // Si signUp ok, créer un profil avec rôle joueur
     const userId = data.user?.id;
     if (!userId) {
       throw new Error('Impossible de récupérer le compte créé');
@@ -39,12 +38,11 @@ export class AuthService {
       username,
       role: 'player',
       email,
-      phone: phone ?? null,
     });
 
     if (profileError) {
       console.error('Erreur création profil:', profileError);
-      throw new Error('Le profil joueur n’a pas pu être créé');
+      throw new Error("Le profil joueur n'a pas pu être créé");
     }
   }
 

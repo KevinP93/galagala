@@ -3,6 +3,8 @@ import { Component, OnInit } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { Tournament } from '../models/tournament.model';
 import { TournamentService } from '../services/tournament.service';
+import { RegistrationService } from '../services/registration.service';
+import { AuthService } from '../auth.service';
 
 @Component({
   selector: 'app-home',
@@ -15,6 +17,8 @@ export class HomeComponent implements OnInit {
   nextTournament: Tournament | null = null;
   loading = false;
   error = '';
+  isRegistered = false;
+  hasNextTournament = false;
 
   highlights = [
     {
@@ -31,7 +35,11 @@ export class HomeComponent implements OnInit {
     },
   ];
 
-  constructor(private tournamentService: TournamentService) {}
+  constructor(
+    private tournamentService: TournamentService,
+    private registrationService: RegistrationService,
+    private auth: AuthService
+  ) {}
 
   ngOnInit(): void {
     this.loadNextTournament();
@@ -42,6 +50,8 @@ export class HomeComponent implements OnInit {
     this.error = '';
     try {
       this.nextTournament = await this.tournamentService.getNextTournament();
+      this.hasNextTournament = !!this.nextTournament;
+      await this.checkRegistration();
     } catch (err: unknown) {
       this.error = err instanceof Error ? err.message : 'Impossible de charger le prochain tournoi';
     } finally {
@@ -49,7 +59,13 @@ export class HomeComponent implements OnInit {
     }
   }
 
-  get hasNextTournament(): boolean {
-    return !!this.nextTournament;
+  private async checkRegistration(): Promise<void> {
+    this.isRegistered = false;
+    const userId = this.auth.getUserId();
+    if (!userId || !this.nextTournament?.id) {
+      return;
+    }
+    const registrations = await this.registrationService.getRegistrations(this.nextTournament.id);
+    this.isRegistered = registrations.some((r) => r.userId === userId);
   }
 }

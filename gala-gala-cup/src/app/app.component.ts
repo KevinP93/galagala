@@ -4,6 +4,7 @@ import { Router, RouterLink, RouterLinkActive, RouterOutlet, NavigationEnd } fro
 import { Subscription } from 'rxjs';
 import { filter } from 'rxjs/operators';
 import { AuthService } from './auth.service';
+import { PushService } from './services/push.service';
 
 @Component({
   selector: 'app-root',
@@ -20,8 +21,9 @@ export class AppComponent implements OnInit, OnDestroy {
   private previousUrl: string | null = null;
   private touchStartX = 0;
   private touchEndX = 0;
+  notifStatus = '';
 
-  constructor(private auth: AuthService, private router: Router) {}
+  constructor(private auth: AuthService, private router: Router,private push: PushService) {}
 
   ngOnInit(): void {
     this.navSub = this.router.events
@@ -34,6 +36,16 @@ export class AppComponent implements OnInit, OnDestroy {
 
   ngOnDestroy(): void {
     this.navSub?.unsubscribe();
+  }
+
+  async enableNotifications(): Promise<void> {
+    this.notifStatus = '';
+    try {
+      await this.push.enablePush();
+      this.notifStatus = 'Notifications activées ✅';
+    } catch (e: any) {
+      this.notifStatus = e?.message ?? 'Impossible d’activer les notifications';
+    }
   }
 
   get isLoggedIn(): boolean {
@@ -69,14 +81,29 @@ export class AppComponent implements OnInit, OnDestroy {
   onTouchEnd(): void {
     const deltaX = this.touchEndX - this.touchStartX;
     const isFromLeftEdge = this.touchStartX < 50;
-    if (isFromLeftEdge && deltaX > 80) {
-      if (this.previousUrl) {
-        this.router.navigateByUrl(this.previousUrl);
-      } else {
-        history.back();
-      }
+    const shouldGoBack = isFromLeftEdge && deltaX > 80;
+
+    if (shouldGoBack) {
+      this.goBack();
     }
     this.touchStartX = 0;
     this.touchEndX = 0;
+  }
+
+  goBack(): void {
+    const tryingToOpenLoginWhileAuthenticated =
+      this.auth.isLoggedIn() && this.previousUrl?.includes('/admin/login');
+
+    if (tryingToOpenLoginWhileAuthenticated) {
+      const redirect = this.auth.isAdmin() ? '/admin' : '/';
+      this.router.navigateByUrl(redirect, { replaceUrl: true });
+      return;
+    }
+
+    if (this.previousUrl) {
+      this.router.navigateByUrl(this.previousUrl);
+    } else {
+      history.back();
+    }
   }
 }

@@ -19,3 +19,15 @@ export const adminGuard: CanMatchFn = (): boolean | UrlTree => {
   }
   return router.createUrlTree(['/admin/login']);
 };
+
+export const guestGuard: CanMatchFn = (): boolean | UrlTree => {
+  const auth = inject(AuthService);
+  const router = inject(Router);
+
+  if (!auth.isLoggedIn()) {
+    return true;
+  }
+
+  const redirect = auth.isAdmin() ? '/admin' : '/';
+  return router.createUrlTree([redirect]);
+};

@@ -3,10 +3,10 @@
     <div>
       <p class="eyebrow">Admin</p>
       <h2>Tableau de bord</h2>
-      <p class="muted">Vue rapide sur l’activité, les matchs et les actions à prévoir.</p>
+      <p class="muted">Vue rapide sur l'activite, les matchs et les actions a prevoir.</p>
     </div>
     <div class="actions">
-      <a routerLink="/admin/prochain" class="btn ghost">Gérer le prochain tournoi</a>
+      <a routerLink="/admin/prochain" class="btn ghost">Gerer le prochain tournoi</a>
       <a routerLink="/admin/tournois/nouveau" class="btn">Nouveau tournoi</a>
     </div>
   </header>
@@ -19,31 +19,31 @@
       <div class="card-head">
         <div>
           <p class="label">Prochain tournoi</p>
-          <h3>{{ tournament?.name }}</h3>
-          <p class="muted">{{ tournament?.location }} · {{ tournament?.date | date: 'dd MMM yyyy' }}</p>
+          <h3>{{ tournament.name }}</h3>
+          <p class="muted">{{ tournament.location }} · {{ tournament.date | date: 'dd MMM yyyy' }}</p>
         </div>
-        <span class="pill">{{ tournament?.matches?.length || 0 }} matchs</span>
+        <span class="pill">{{ tournament.matches.length || 0 }} matchs</span>
       </div>
       <div class="meta-row">
         <div>
           <p class="muted-sm">Inscrits</p>
-          <strong>{{ stats[0]?.value }}</strong>
+          <strong>{{ stats[0].value }}</strong>
         </div>
         <div>
-          <p class="muted-sm">Matchs planifiés</p>
-          <strong>{{ stats[1]?.value }}</strong>
+          <p class="muted-sm">Matchs planifies</p>
+          <strong>{{ stats[1].value }}</strong>
         </div>
       </div>
       <div class="card-actions">
         <a routerLink="/admin/prochain" class="btn ghost">Ouvrir la fiche</a>
-        <a routerLink="/admin/prochain/gestion" class="btn outline">Équipes & matchs</a>
+        <a routerLink="/admin/prochain/gestion" class="btn outline">Equipes & matchs</a>
       </div>
     </article>
     <ng-template #noTournament>
       <article class="card empty">
-        <h3>Pas de tournoi planifié</h3>
-        <p class="muted">Crée un tournoi pour commencer à collecter les inscriptions.</p>
-        <a routerLink="/admin/tournois/nouveau" class="btn">Créer un tournoi</a>
+        <h3>Pas de tournoi planifie</h3>
+        <p class="muted">Cree un tournoi pour commencer a collecter les inscriptions.</p>
+        <a routerLink="/admin/tournois/nouveau" class="btn">Creer un tournoi</a>
       </article>
     </ng-template>
 
@@ -58,13 +58,46 @@
     </article>
   </section>
 
-  <section class="card alerts">
-    <div class="alerts__head">
-      <h3>Actions à prévoir</h3>
-      <span class="tag">{{ alerts.length }}</span>
+  <section class="card notifications">
+    <div class="notifications__head">
+      <div>
+        <p class="label">Envoi de notifications</p>
+        <h3>Informer rapidement les equipes</h3>
+      </div>
+      <button class="btn" type="button" (click)="openNotificationModal()">Composer</button>
     </div>
-    <ul>
-      <li *ngFor="let alert of alerts">{{ alert }}</li>
-    </ul>
+    <p class="muted">Prepare le titre et le message avant d'envoyer aux joueurs.</p>
   </section>
+
+  <div class="modal-backdrop" *ngIf="showNotificationModal">
+    <div class="modal">
+      <div class="modal__head">
+        <div>
+          <p class="label">Notification</p>
+          <h3>Composer une alerte</h3>
+        </div>
+        <button class="pill-remove" (click)="closeNotificationModal()" aria-label="Fermer">×</button>
+      </div>
+      <label>
+        <span>Titre</span>
+        <input type="text" [(ngModel)]="notificationTitle" />
+      </label>
+      <label>
+        <span>Message</span>
+        <textarea rows="4" [(ngModel)]="notificationMessage" placeholder="Ex: Match 1 decale de 15 minutes"></textarea>
+      </label>
+      <div class="preview">
+        <p class="label">Apercu</p>
+        <div class="preview__card">
+          <strong>{{ notificationTitle || 'Titre' }}</strong>
+          <p class="muted">{{ notificationMessage || 'Ton message apparaitra ici.' }}</p>
+        </div>
+      </div>
+      <p class="error" *ngIf="notificationError">{{ notificationError }}</p>
+      <div class="modal__actions">
+        <button type="button" class="btn ghost" (click)="closeNotificationModal()">Fermer</button>
+        <button type="button" class="btn" (click)="sendNotification()">Envoyer</button>
+      </div>
+    </div>
+  </div>
 </div>

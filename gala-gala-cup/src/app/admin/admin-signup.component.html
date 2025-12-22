@@ -15,10 +15,6 @@
       <span>Username</span>
       <input type="text" [(ngModel)]="username" name="username" required />
     </label>
-    <label>
-      <span>Téléphone (optionnel)</span>
-      <input type="text" [(ngModel)]="phone" name="phone" />
-    </label>
     <button type="submit" class="btn" [disabled]="loading">
       {{ loading ? 'Création...' : 'Créer un compte' }}
     </button>

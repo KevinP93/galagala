@@ -18,6 +18,7 @@ export class PlayerListComponent implements OnInit {
   submitting = false;
   error = '';
   isRegistered = false;
+  hasNextTournament = false;
   currentUserId: string | null = null;
 
   constructor(private registrationService: RegistrationService, private auth: AuthService) {
@@ -33,6 +34,7 @@ export class PlayerListComponent implements OnInit {
     this.error = '';
     try {
       const nextTournamentId = await this.registrationService.getNextTournamentId();
+      this.hasNextTournament = !!nextTournamentId;
       this.registrations = await this.registrationService.getRegistrations(nextTournamentId ?? undefined);
       this.isRegistered = !!this.currentUserId && this.registrations.some((r) => r.userId === this.currentUserId);
     } catch (err: unknown) {

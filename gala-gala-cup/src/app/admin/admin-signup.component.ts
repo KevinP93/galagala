@@ -15,7 +15,6 @@ export class AdminSignupComponent {
   email = '';
   password = '';
   username = '';
-  phone = '';
   statusMessage = '';
   loading = false;
 
@@ -29,10 +28,10 @@ export class AdminSignupComponent {
     this.loading = true;
     this.statusMessage = '';
     try {
-      await this.auth.signup(this.email.trim(), this.password.trim(), this.username.trim(), this.phone.trim());
+      await this.auth.signup(this.email.trim(), this.password.trim(), this.username.trim());
       this.router.navigate(['/']);
     } catch (err: unknown) {
-      this.statusMessage = err instanceof Error ? err.message : 'Impossible de créer le compte';
+      this.statusMessage = err instanceof Error ? err.message : "Impossible de créer le compte";
     } finally {
       this.loading = false;
     }

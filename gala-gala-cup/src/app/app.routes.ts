@@ -6,7 +6,7 @@ import { AdminLoginComponent } from './admin/admin-login.component';
 import { AdminDashboardComponent } from './admin/admin-dashboard.component';
 import { AdminTournamentListComponent } from './admin/admin-tournament-list.component';
 import { AdminTournamentFormComponent } from './admin/admin-tournament-form.component';
-import { adminGuard, authGuard } from './auth.guard';
+import { adminGuard, authGuard, guestGuard } from './auth.guard';
 import { PlayerListComponent } from './public/player-list.component';
 import { AdminSignupComponent } from './admin/admin-signup.component';
 import { AdminNextTournamentComponent } from './admin/admin-next-tournament.component';
@@ -17,8 +17,8 @@ export const routes: Routes = [
   { path: 'matches', component: MatchesComponent, canMatch: [authGuard] },
   { path: 'listes', component: PlayerListComponent, canMatch: [authGuard] },
   { path: 'historique', component: HistoriqueComponent, canMatch: [authGuard] },
-  { path: 'admin/login', component: AdminLoginComponent },
-  { path: 'admin/signup', component: AdminSignupComponent },
+  { path: 'admin/login', component: AdminLoginComponent, canMatch: [guestGuard] },
+  { path: 'admin/signup', component: AdminSignupComponent, canMatch: [guestGuard] },
   { path: 'admin/prochain', component: AdminNextTournamentComponent, canMatch: [adminGuard] },
   { path: 'admin/prochain/gestion', component: AdminTeamMatchComponent, canMatch: [adminGuard] },
   { path: 'admin', component: AdminDashboardComponent, canMatch: [adminGuard] },

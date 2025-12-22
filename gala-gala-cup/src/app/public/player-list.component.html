@@ -4,34 +4,35 @@
       <p class="eyebrow">Listes</p>
       <h2>Joueurs inscrits</h2>
       <p class="muted">
-        Visualise les équipes déjà engagées. Ajoute la tienne en un clic pour le prochain tournoi.
+        Visualise les equipes deja engagees. Ajoute la tienne en un clic pour le prochain tournoi.
       </p>
     </div>
     <div class="highlight-card">
       <p class="label">En un geste</p>
       <h4>Inscris ton profil</h4>
-      <button class="btn full" (click)="register()" [disabled]="submitting || isRegistered">
-        {{ submitting ? 'Inscription...' : (isRegistered ? 'Déjà inscrit' : 'S’inscrire') }}
+      <button class="btn full" (click)="register()" [disabled]="submitting || isRegistered || !hasNextTournament">
+        {{ submitting ? 'Inscription...' : (isRegistered ? 'Deja inscrit' : "S'inscrire") }}
       </button>
-      <p class="muted-sm">Inscription via ton compte connecté.</p>
+      <p class="muted-sm" *ngIf="hasNextTournament">Inscription via ton compte connecte.</p>
+      <p class="muted-sm" *ngIf="!hasNextTournament">Aucun tournoi planifie pour l'instant.</p>
       <p class="error" *ngIf="error">{{ error }}</p>
     </div>
   </header>
 
   <section class="list">
     <div class="list__head">
-      <h3>Inscriptions récentes</h3>
+      <h3>Inscriptions recentes</h3>
       <span class="tag">{{ registrations.length }}</span>
     </div>
     <div *ngIf="loading" class="muted">Chargement...</div>
-    <div *ngIf="!loading && !registrations.length" class="empty">Aucune inscription pour l’instant.</div>
+    <div *ngIf="!loading && !registrations.length" class="empty">Aucune inscription pour l'instant.</div>
     <ul *ngIf="!loading && registrations.length">
       <li *ngFor="let entry of registrations">
         <div>
           <strong>{{ entry.username || 'Profil inconnu' }}</strong>
           <p class="muted">
             <span *ngIf="entry.tournamentName">
-              · Tournoi : {{ entry.tournamentName }}
+              - Tournoi : {{ entry.tournamentName }}
               <ng-container *ngIf="entry.tournamentDate"> ({{ entry.tournamentDate | date: 'dd MMM yyyy' }})</ng-container>
             </span>
           </p>

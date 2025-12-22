@@ -58,6 +58,9 @@ export class RegistrationService {
     }
 
     const tournamentId = await this.findNextTournamentId();
+    if (!tournamentId) {
+      throw new Error('Aucun tournoi planifié pour le moment');
+    }
 
     const { error } = await this.supabase.from('registrations').insert({
       user_id: userId,

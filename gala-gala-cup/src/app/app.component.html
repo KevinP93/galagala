@@ -19,7 +19,15 @@
         <a routerLink="/matches" routerLinkActive="active" (click)="closeMenu()">Matchs</a>
         <a routerLink="/listes" routerLinkActive="active" (click)="closeMenu()">Listes</a>
         <a routerLink="/historique" routerLinkActive="active" (click)="closeMenu()">Historique</a>
-        <a *ngIf="isAdmin" routerLink="/admin" routerLinkActive="active" class="nav-link" (click)="closeMenu()">Gérer</a>
+        <a *ngIf="isAdmin" routerLink="/admin" routerLinkActive="active" class="nav-link" (click)="closeMenu()">Admin</a>
+        <button
+            type="button"
+            class="nav-link"
+            (click)="enableNotifications(); closeMenu()"
+          >
+            🔔 Activer les notifications
+          </button>
+
         <button type="button" class="logout-btn" (click)="logout(); closeMenu()">
           <span class="icon">⏻</span>
           Déconnexion

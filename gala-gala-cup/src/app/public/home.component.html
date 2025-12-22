@@ -1,7 +1,7 @@
 <section class="hero">
   <div class="hero__text">
     <p class="kicker">Just play it</p>
-    <h1>GalaGala CUP, l’app qui suit le tempo des matchs.</h1>
+    <h1>GalaGala CUP, l'app qui suit le tempo des matchs.</h1>
     <p class="sub">
       Reçois les alertes avant le coup d’envoi, inscris tes joueurs en deux gestes et garde la trace des équipes
       championnes.
@@ -22,7 +22,14 @@
     <div class="muted-sm" *ngIf="nextTournament?.matches?.length">
       {{ nextTournament?.matches?.length || 0 }} match(s) prévu(s)
     </div>
-    <a routerLink="/listes" class="btn ghost full">Je m’inscris</a>
+    <a
+      routerLink="/listes"
+      class="btn ghost full"
+      [class.disabled]="isRegistered"
+      [attr.aria-disabled]="isRegistered"
+    >
+      {{ isRegistered ? 'Déjà inscrit' : "Je m'inscris" }}
+    </a>
   </div>
 </section>
 

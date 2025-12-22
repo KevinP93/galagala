@@ -157,3 +157,89 @@
   display: grid;
   gap: 0.35rem;
 }
+
+.notifications {
+  margin-top: 0.5rem;
+}
+
+.notifications__head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  z-index: 50;
+}
+
+.modal {
+  width: min(520px, 100%);
+  background: #fff;
+  border-radius: 16px;
+  padding: 1.25rem;
+  border: 1px solid #e5e5e5;
+  box-shadow: 0 18px 48px rgba(0, 0, 0, 0.25);
+  display: grid;
+  gap: 0.75rem;
+}
+
+.modal__head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.pill-remove {
+  border: none;
+  background: #f3f3f3;
+  border-radius: 50%;
+  width: 34px;
+  height: 34px;
+  font-size: 1.1rem;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.modal label {
+  display: grid;
+  gap: 0.35rem;
+  font-weight: 700;
+}
+
+.modal input,
+.modal textarea {
+  padding: 0.85rem 1rem;
+  border-radius: 12px;
+  border: 1px solid #dcdcdc;
+  font-size: 1rem;
+  background: #fafafa;
+}
+
+.modal__actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.6rem;
+}
+
+.preview {
+  display: grid;
+  gap: 0.4rem;
+}
+
+.preview__card {
+  border: 1px solid #e5e5e5;
+  border-radius: 12px;
+  padding: 0.75rem;
+  background: #fafafa;
+}
