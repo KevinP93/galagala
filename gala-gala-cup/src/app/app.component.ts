@@ -22,6 +22,9 @@ export class AppComponent implements OnInit, OnDestroy {
   private touchStartX = 0;
   private touchEndX = 0;
   notifStatus = '';
+  showNotifPrompt = false;
+  notifPromptBusy = false;
+  notifPromptError = '';
 
   constructor(private auth: AuthService, private router: Router,private push: PushService) {}
 
@@ -32,6 +35,8 @@ export class AppComponent implements OnInit, OnDestroy {
         this.previousUrl = this.currentUrl || null;
         this.currentUrl = event.urlAfterRedirects;
       });
+
+    this.maybePromptNotifications();
   }
 
   ngOnDestroy(): void {
@@ -67,6 +72,43 @@ export class AppComponent implements OnInit, OnDestroy {
 
   closeMenu(): void {
     this.menuOpen = false;
+  }
+
+  private getPromptKey(): string {
+    const userId = this.auth.getUserId();
+    return `notifPrompted:${userId ?? 'guest'}`;
+  }
+
+  private async maybePromptNotifications(): Promise<void> {
+    if (!this.isLoggedIn) return;
+    const permission = typeof Notification !== 'undefined' ? Notification.permission : 'default';
+    if (permission === 'granted') {
+      return;
+    }
+    const key = this.getPromptKey();
+    if (localStorage.getItem(key) === 'done') {
+      return;
+    }
+    this.showNotifPrompt = true;
+  }
+
+  async acceptNotifPrompt(): Promise<void> {
+    this.notifPromptError = '';
+    this.notifPromptBusy = true;
+    try {
+      await this.enableNotifications();
+      localStorage.setItem(this.getPromptKey(), 'done');
+      this.showNotifPrompt = false;
+    } catch (e: any) {
+      this.notifPromptError = e?.message ?? "Impossible d'activer les notifications";
+    } finally {
+      this.notifPromptBusy = false;
+    }
+  }
+
+  declineNotifPrompt(): void {
+    localStorage.setItem(this.getPromptKey(), 'done');
+    this.showNotifPrompt = false;
   }
 
   onTouchStart(event: TouchEvent): void {

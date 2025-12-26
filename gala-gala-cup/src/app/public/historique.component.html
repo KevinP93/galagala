@@ -1,16 +1,62 @@
 <div class="page">
   <header>
     <p class="eyebrow">Historique</p>
-    <h2>Palmarès en noir et blanc.</h2>
-    <p class="muted">Les vainqueurs des précédentes GalaGala CUP.</p>
+    <h2>Les derniers tournois.</h2>
+    <p class="muted">Tournois conclus, vainqueurs et score final quand il est renseigne.</p>
   </header>
 
-  <div class="grid">
-    <article *ngFor="let winner of winners" class="card">
-      <p class="year">{{ winner.year }}</p>
-      <h3>{{ winner.team }}</h3>
-      <p class="muted">Score de la finale : {{ winner.score }}</p>
-      <p class="mvp">MVP : {{ winner.mvp }}</p>
+  <div *ngIf="loading" class="state muted">Chargement...</div>
+  <div *ngIf="error" class="state error">{{ error }}</div>
+  <div *ngIf="!loading && !error && !history.length" class="state empty">
+    Aucun tournoi termine pour le moment.
+  </div>
+
+  <div class="grid" *ngIf="!loading && !error && history.length">
+    <article
+      *ngFor="let item of history"
+      class="card"
+      role="button"
+      tabindex="0"
+      (click)="openFinalists(item)"
+      (keydown.enter)="openFinalists(item)"
+      (keydown.space)="openFinalists(item)"
+    >
+      <p class="year">{{ item.date | date: 'dd MMM yyyy' }}</p>
+      <h3>{{ item.name }}</h3>
+      <p class="muted">Vainqueur : <strong>{{ item.winner }}</strong></p>
+      <p class="score" *ngIf="item.score">Score final : {{ item.score }}</p>
     </article>
+  </div>
+
+  <div class="modal-backdrop" *ngIf="showModal" (click)="closeModal()"></div>
+  <div class="modal" *ngIf="showModal" role="dialog" aria-modal="true" aria-label="Equipes finalistes" (click)="$event.stopPropagation()">
+    <header class="modal__head">
+      <div>
+        <p class="eyebrow">Finale</p>
+        <h3>{{ selectedTournamentTitle }}</h3>
+        <p class="muted small">Equipes finalistes</p>
+      </div>
+      <button class="icon-btn" type="button" aria-label="Fermer" (click)="closeModal()">X</button>
+    </header>
+
+    <div class="modal__body">
+      <div class="summary" *ngIf="selectedWinner">
+        <span class="chip dark">Champion</span>
+        <span class="muted">{{ selectedWinner }}</span>
+      </div>
+      <p class="muted" *ngIf="modalLoading">Chargement des equipes...</p>
+      <p class="error" *ngIf="modalError">{{ modalError }}</p>
+      <div class="finalists" *ngIf="!modalLoading && !modalError && selectedFinalists.length">
+        <div class="finalist" *ngFor="let team of selectedFinalists">
+          <div class="finalist__head">
+            <h4>{{ team.name }}</h4>
+          </div>
+          <div class="players">
+            <span class="player" *ngFor="let player of team.players">{{ player }}</span>
+            <span class="muted" *ngIf="!team.players.length">Aucun joueur renseigne.</span>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
 </div>
