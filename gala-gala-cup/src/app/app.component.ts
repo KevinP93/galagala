@@ -5,6 +5,7 @@ import { Subscription } from 'rxjs';
 import { filter } from 'rxjs/operators';
 import { AuthService } from './auth.service';
 import { PushService } from './services/push.service';
+import { SwUpdate, VersionEvent } from '@angular/service-worker';
 
 @Component({
   selector: 'app-root',
@@ -17,6 +18,7 @@ export class AppComponent implements OnInit, OnDestroy {
   title = 'gala-gala-cup';
   menuOpen = false;
   private navSub?: Subscription;
+  private swSub?: Subscription;
   private currentUrl = '';
   private previousUrl: string | null = null;
   private touchStartX = 0;
@@ -26,7 +28,7 @@ export class AppComponent implements OnInit, OnDestroy {
   notifPromptBusy = false;
   notifPromptError = '';
 
-  constructor(private auth: AuthService, private router: Router,private push: PushService) {}
+  constructor(private auth: AuthService, private router: Router,private push: PushService, private sw: SwUpdate) {}
 
   ngOnInit(): void {
     this.navSub = this.router.events
@@ -37,10 +39,12 @@ export class AppComponent implements OnInit, OnDestroy {
       });
 
     this.maybePromptNotifications();
+    this.setupServiceWorkerUpdates();
   }
 
   ngOnDestroy(): void {
     this.navSub?.unsubscribe();
+    this.swSub?.unsubscribe();
   }
 
   async enableNotifications(): Promise<void> {
@@ -51,6 +55,21 @@ export class AppComponent implements OnInit, OnDestroy {
     } catch (e: any) {
       this.notifStatus = e?.message ?? 'Impossible d’activer les notifications';
     }
+  }
+
+  private setupServiceWorkerUpdates(): void {
+    if (!this.sw.isEnabled) return;
+    // activer immédiatement une nouvelle version puis recharger
+    this.swSub = this.sw.versionUpdates.subscribe((event: VersionEvent) => {
+      if (event.type === 'VERSION_READY') {
+        this.sw.activateUpdate().then(() => document.location.reload());
+      }
+    });
+    // déclencher une vérification au chargement
+    this.sw.checkForUpdate();
+    // recheck périodique
+    const interval = setInterval(() => this.sw.checkForUpdate(), 60 * 60 * 1000);
+    this.swSub?.add({ unsubscribe: () => clearInterval(interval) });
   }
 
   get isLoggedIn(): boolean {
