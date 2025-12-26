@@ -25,7 +25,7 @@ export class AuthService {
 
     if (error) {
       console.error('Erreur signup:', error);
-      throw new Error(error.message);
+      throw new Error(this.translateAuthError(error.message));
     }
 
     const userId = data.user?.id;
@@ -84,7 +84,7 @@ export class AuthService {
 
     if (error) {
       console.error('Erreur login:', error);
-      throw new Error(error.message);
+      throw new Error(this.translateAuthError(error.message));
     }
 
     if (!data.user) {
@@ -138,5 +138,22 @@ export class AuthService {
 
   getUserId(): string | null {
     return this.userId;
+  }
+
+  private translateAuthError(message: string): string {
+    const msg = message.toLowerCase();
+    if (msg.includes('invalid login credentials') || msg.includes('invalid email or password')) {
+      return 'Email/username ou mot de passe incorrect.';
+    }
+    if (msg.includes('email not confirmed') || msg.includes('email confirmation') || msg.includes('not confirmed')) {
+      return 'Compte non confirmé. Vérifie tes emails et confirme ton adresse.';
+    }
+    if (msg.includes('user already registered') || msg.includes('already registered') || msg.includes('exists')) {
+      return 'Un compte existe déjà avec ces identifiants.';
+    }
+    if (msg.includes('network') || msg.includes('fetch')) {
+      return 'Connexion impossible. Vérifie ta connexion internet.';
+    }
+    return message;
   }
 }
